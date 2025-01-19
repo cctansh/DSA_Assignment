@@ -19,7 +19,9 @@ Dictionary::~Dictionary()
         {
             Node* toDelete = current;
             current = current->next;
-            delete toDelete;
+
+            delete static_cast<int*>(toDelete->item); // Free the memory of the item
+            delete toDelete;                         // Free the Node itself
         }
     }
 }
@@ -27,12 +29,22 @@ Dictionary::~Dictionary()
 // TO EDIT LATER FOR BETTER HASHING
 int Dictionary::hash(KeyType key)
 {
-    return key % MAX_SIZE;
+    return (key * 2654435761 % 2 ^ 32) % MAX_SIZE; // Knuth's Multiplicative Hashing
 }
 
 bool Dictionary::add(KeyType newKey, void* newItem)
 {
     int index = hash(newKey);
+    Node* current = items[index];
+
+    // Check for duplicate key
+    while (current != nullptr)
+    {
+        if (current->key == newKey)
+            return false; // Duplicate key found
+        current = current->next;
+    }
+
     Node* newNode = new Node{ newKey, newItem, items[index] };
     items[index] = newNode;
     ++size;
@@ -57,6 +69,7 @@ void Dictionary::remove(KeyType key)
             {
                 prev->next = current->next;
             }
+            delete static_cast<int*>(current->item);
             delete current;
             size--;
             return;

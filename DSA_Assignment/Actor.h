@@ -17,6 +17,6 @@ public:
 	int getBirthYear();
 	void setMovies(List);
 	List getMovies();
-	void addMovie(int);
+	void addMovie(int*);
 	void print();
 };

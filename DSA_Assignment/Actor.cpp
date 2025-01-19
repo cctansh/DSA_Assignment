@@ -22,7 +22,7 @@ void Actor::setMovies(List m) {
 List Actor::getMovies() {
 	return movies;
 }
-void Actor::addMovie(int movieId) {
+void Actor::addMovie(int* movieId) {
 	movies.add(movieId);
 }
 void Actor::print() {

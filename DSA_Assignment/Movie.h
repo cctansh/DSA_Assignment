@@ -20,6 +20,6 @@ public:
 	int getYear();
 	void setActors(List);
 	List getActors();
-	void addActor(int);
+	void addActor(int*);
 	void print();
 };

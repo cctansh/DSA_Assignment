@@ -14,7 +14,7 @@ List::~List() {
 // pre : size < MAX_SIZE
 // post: item is added to the back of the list
 //       size of list is increased by 1
-bool List::add(ItemType item) {
+bool List::add(void* item) {
     // check if list has reached max size
     if (size >= MAX) {
         return false;
@@ -46,7 +46,7 @@ bool List::add(ItemType item) {
 // post: item is added to the specified position in the list
 //       items after the position are shifted back by 1 position
 //       size of list is increased by 1
-bool List::add(int index, ItemType item) {
+bool List::add(int index, void* item) {
     // check if valid index
     if (index < 0 || index > size) {
         return false;
@@ -98,7 +98,7 @@ void List::remove(int index) {
         }
         prev->next = temp->next; // set previous node to point to the node after deleted node
     }
-
+    delete static_cast<int*>(temp->item);
     delete temp; // delete the removed node
     size--;      // decrease size by 1
 };
@@ -107,7 +107,7 @@ void List::remove(int index) {
 // pre : 0 <= index < size
 // post: none
 // return the item in the specified index of the list
-ItemType List::get(int index) {
+void* List::get(int index) {
     if (index < 0 || index >= size) { // Check if the index is valid
         throw out_of_range("Index out of range");
     }
@@ -139,13 +139,13 @@ int List::getLength() { return size; };
 void List::print() {
     Node* temp = firstNode; // point to first node
     while (temp != nullptr) { // traverse through list
-        cout << temp->item << " ";
+        cout << *(static_cast<int*>(temp->item)) << endl;
         temp = temp->next;
     }
     cout << endl;
 };
 
-void List::replace(int index, ItemType item) {
+void List::replace(int index, void* item) {
     // check if valid index
     if (index < 0 || index >= size) {
         throw out_of_range("Index out of range");

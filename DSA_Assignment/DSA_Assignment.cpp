@@ -26,6 +26,9 @@ int main()
     Movie* movie = static_cast<Movie*>(movieTable.get(93779));
     actor->print();
     movie->print();
+    List movies = actor->getMovies();
+    movies.print();
+    //
 
     return 0;
 }
@@ -120,8 +123,13 @@ void parseCast(const string& filename, Dictionary& actorTable, Dictionary& movie
         Movie* movie = static_cast<Movie*>(movieTable.get(movieID));
 
         if (actor && movie) {
-            actor->addMovie(movieID);
-            movie->addActor(actorID);
+            // Create pointers to the IDs
+            int* actorIDPtr = new int(actorID);
+            int* movieIDPtr = new int(movieID);
+
+            // Add movieID to the actor and actorID to the movie
+            actor->addMovie(movieIDPtr);
+            movie->addActor(actorIDPtr);
         }
     }
     file.close();

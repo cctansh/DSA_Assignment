@@ -29,7 +29,7 @@ void Movie::setActors(List a) {
 List Movie::getActors() {
 	return actors;
 }
-void Movie::addActor(int actorId) {
+void Movie::addActor(int* actorId) {
 	actors.add(actorId);
 }
 void Movie::print() {
