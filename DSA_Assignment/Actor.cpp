@@ -1,5 +1,9 @@
 #include "Actor.h"
-
+Actor::Actor(string n, int y) {
+	name = n;
+	birthYear = y;
+	movies = List();
+}
 void Actor::setName(string n) {
 	name = n;
 }
@@ -17,6 +21,9 @@ void Actor::setMovies(List m) {
 }
 List Actor::getMovies() {
 	return movies;
+}
+void Actor::addMovie(int movieId) {
+	movies.add(movieId);
 }
 void Actor::print() {
 	std::cout << name << ", " << birthYear << endl;

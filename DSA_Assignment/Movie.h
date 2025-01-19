@@ -11,6 +11,7 @@ private:
 	int year;
 	List actors;
 public:
+	Movie(string, string, int);
 	void setTitle(string);
 	string getTitle();
 	void setPlot(string);
@@ -19,5 +20,6 @@ public:
 	int getYear();
 	void setActors(List);
 	List getActors();
+	void addActor(int);
 	void print();
 };

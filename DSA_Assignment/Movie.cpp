@@ -1,4 +1,10 @@
 #include "Movie.h"
+Movie::Movie(string t, string p, int y) {
+	title = t;
+	plot = p;
+	year = y;
+	actors = List();
+}
 void Movie::setTitle(string t) {
 	title = t;
 }
@@ -22,6 +28,9 @@ void Movie::setActors(List a) {
 }
 List Movie::getActors() {
 	return actors;
+}
+void Movie::addActor(int actorId) {
+	actors.add(actorId);
 }
 void Movie::print() {
 	std::cout << title << ", " << year << endl;

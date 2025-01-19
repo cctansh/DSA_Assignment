@@ -4,7 +4,7 @@ using namespace std;
 
 typedef int ItemType;
 
-const int MAX_SIZE = 100;
+const int MAX = 100;
 
 class List
 {

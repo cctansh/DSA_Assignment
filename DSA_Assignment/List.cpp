@@ -16,7 +16,7 @@ List::~List() {
 //       size of list is increased by 1
 bool List::add(ItemType item) {
     // check if list has reached max size
-    if (size >= MAX_SIZE) {
+    if (size >= MAX) {
         return false;
     }
 
