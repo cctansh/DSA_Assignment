@@ -104,3 +104,29 @@ int Dictionary::getLength()
 {
     return size;
 }
+void Dictionary::getActorsByAge(int x, int y, SortedLinkedList& list, int currentYear) {
+    for (int i = 0; i < MAX_SIZE; ++i) {
+        Node* current = items[i];
+        while (current != nullptr) {
+            Actor* actor = static_cast<Actor*>(current->item);
+            int age = currentYear - actor->getBirthYear();
+            if (age >= x && age <= y) {
+                list.add(actor);                    // add to the sorted list
+            }
+            current = current->next;
+        }
+    }
+}
+
+void Dictionary::getMoviesWithinYearRange(int yearThreshold, SortedLinkedList& sortedList) {
+    for (int i = 0; i < MAX_SIZE; ++i) {
+        Node* current = items[i];
+        while (current != nullptr) {
+            Movie* movie = static_cast<Movie*>(current->item);
+            if (movie->getYear() >= yearThreshold) { // movie within past 3 years
+                sortedList.add(movie);               // add to the sorted list
+            }
+            current = current->next;
+        }
+    }
+}

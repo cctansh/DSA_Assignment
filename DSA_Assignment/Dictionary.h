@@ -2,6 +2,9 @@
 
 #include<string>
 #include<iostream>
+#include "SortedLinkedList.h"
+#include "Movie.h"
+#include "Actor.h"
 using namespace std;
 
 const int MAX_SIZE = 101;
@@ -60,5 +63,18 @@ public:
 	// post: none
 	// return the number of items in the Dictionary
 	int getLength();
+
+	// get the actors within specified age range
+	// pre : minimum age (x) must be less than or equal to maximum age (y)
+	// post : sortedLinkedList contains actors within the specified age range
+	// sortedlinkedlist has actors sorted by age in ascending order
+	void getActorsByAge(int x, int y, SortedLinkedList& sortedList, int currentYear);
+
+	// get movies released for the past 3 years of the year user input
+	// pre : dictionary is not empty
+	// post : sortedLinkedList contains movies released on or after the year threshold
+	// sortedlinkedlist has movies sorted by release year in ascending order
+	void getMoviesWithinYearRange(int yearThreshold, SortedLinkedList& sortedList);
+
 
 };
