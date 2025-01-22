@@ -51,6 +51,9 @@ public:
 	// Retrieve all key-value pairs in the dictionary
 	List<KeyValue<KeyType, ValueType>> getAllItemsWithKeys() const;
 
+    void print();
+
+    bool replace(const KeyType& key, ValueType* newItem);
     /*
 	// get the actors within specified age range
 	// pre : minimum age (x) must be less than or equal to maximum age (y)
@@ -190,6 +193,38 @@ List<KeyValue<KeyType, ValueType>> Dictionary<ValueType>::getAllItemsWithKeys() 
         }
     }
     return allItemsWithKeys;
+}
+
+template <typename ValueType>
+void Dictionary<ValueType>::print() {
+    for (int i = 0; i < MAX_SIZE; ++i) {
+        Node* current = items[i];
+        while (current) {
+            if (current->item) {
+                cout << current->key << ". ";
+                current->item->print();
+            }
+            
+            current = current->next;
+        }
+    }
+}
+
+// Replace an item at a given key with a new item
+template <typename ValueType>
+bool Dictionary<ValueType>::replace(const KeyType& key, ValueType* newItem) {
+    int index = hash(key);
+    Node* current = items[index];
+
+    while (current) {
+        if (current->key == key) {
+            delete current->item;       // Free the memory of the old item
+            current->item = newItem;    // Assign the new item
+            return true;
+        }
+        current = current->next;
+    }
+    return false; // Key not found
 }
 
 /*

@@ -25,15 +25,10 @@ template <typename T>
 int generateUniqueID(const Dictionary<T>& dictionary);
 void addActor(Dictionary<Actor>& actorTable);
 void addMovie(Dictionary<Movie>& movieTable);
-
-/*
-int compareMovies(void* a, void* b);
-int compareActors(void* a, void* b);
-void printMovie(void* item);
-void printActor(void* item);
-void displayActorsByAge(Dictionary<Actor>& actorTable, int x, int y);
-void displayMoviesWithinPastYears(Dictionary<Movie>& movieTable, int currentYear);
-*/
+void updateActor(Dictionary<Actor>& actorTable);
+void updateMovie(Dictionary<Movie>& movieTable);
+void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTable);
+void updateCastCSV(const Dictionary<Movie>& movieTable);
 
 int main()
 {
@@ -51,11 +46,15 @@ int main()
         cout << "2. Display movies within past 3 years" << endl;
         cout << "3. Add actor" << endl;
         cout << "4. Add movie" << endl;
-        cout << "0. Exit" << endl;
+        cout << "5. Add actor to movie" << endl;
+        cout << "6. Update actor" << endl;
+        cout << "7. Update movie" << endl;
+        cout << "0. Exit" << endl << endl;
         cout << "Enter your choice: ";
         cin >> choice;
+        cout << endl;
         if (choice == 0) {
-			break;
+            break;
         }
         else if (choice == 1) {
             int x, y;
@@ -64,36 +63,285 @@ int main()
             cout << "Enter the maximum age (y): ";
             cin >> y;
             if (y <= x) {
-				cout << "Invalid age range. Please try again." << endl;
-				continue;
+                cout << "Invalid age range. Please try again." << endl;
+                continue;
             }
             // display actors by age range
             displayActorsByAgeRange(actorTable, x, y);
         }
         else if (choice == 2) {
             int currentYear;
-			cout << "Enter the current year: ";
-			cin >> currentYear;
+            cout << "Enter the current year: ";
+            cin >> currentYear;
             if (currentYear > getCurrentYear()) {
-				cout << "Invalid year. Please try again." << endl;
-				continue;
+                cout << "Invalid year. Please try again." << endl;
+                continue;
             }
 
-			// display movies within the past 3 years
+            // display movies within the past 3 years
             displayMoviesWithinPast3Years(movieTable, currentYear);
         }
         else if (choice == 3) {
+            cout << "------------ ADD ACTOR ------------" << endl;
             addActor(actorTable);
         }
         else if (choice == 4) {
+            cout << "------------ ADD MOVIE ------------" << endl;
             addMovie(movieTable);
         }
-		else {
-			cout << "Invalid choice. Please try again.\n";
-		}
+        else if (choice == 5) {
+            cout << "------- ADD ACTOR TO MOVIE -------" << endl;
+            addActorToMovie(actorTable, movieTable);
+
+        }
+        else if (choice == 6) {
+            cout << "----------- UPDATE ACTOR -----------" << endl;
+            updateActor(actorTable);
+        }
+        else if (choice == 7) {
+            cout << "----------- UPDATE MOVIE -----------" << endl;
+            updateMovie(movieTable);
+        }
+        else {
+            cout << "Invalid choice. Please try again.\n";
+        }
+        cout << endl;
     }
 
     return 0;
+}
+
+void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTable) {
+    int movieID, actorID;
+    Movie* movie = nullptr;
+    Actor* actor = nullptr;
+
+    cout << endl;
+    cout << "MOVIE LIST" << endl << "----------" << endl;
+    movieTable.print();
+
+    // Get movie
+    while (true) {
+        // Prompt user for movie ID
+        cout << endl << "Enter the ID of the movie you want to add an actor to (or enter 0 to exit):  ";
+        cin >> movieID;
+
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << endl << "Invalid ID. Please try again." << endl;
+            continue;
+        }
+
+        if (movieID == 0) return;
+
+        // Get the movie from the movie table
+        movie = movieTable.get(movieID);
+        if (movie == nullptr) {
+            cout << endl << "Invalid ID. Please try again." << endl;
+            continue;
+        }
+        break;
+    }
+
+    // Get actor
+    cout << endl;
+    cout << "ACTOR LIST" << endl << "----------" << endl;
+    actorTable.print();
+    while (true) {
+        // Prompt user for actor ID
+        cout << endl << "Enter the ID of the actor you want to add (or enter 0 to exit): ";
+        cin >> actorID;
+
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << endl << "Invalid ID. Please try again." << endl;
+            continue;
+        }
+
+        if (actorID == 0) return;
+
+        // Get the movie from the movie table
+        actor = actorTable.get(actorID);
+        if (actor == nullptr) {
+            cout << endl << "Invalid ID. Please try again." << endl;
+            continue;
+        }
+        break;
+    }
+
+    // Add the actor to the movie and vice versa
+    actor->addMovie(movieID);
+    movie->addActor(actorID);
+
+    updateCastCSV(movieTable);
+
+    cout << endl << "Actor " << actor->getName() << " has been added to the movie " << movie->getTitle() << "." << endl;
+}
+
+void updateActor(Dictionary<Actor>& actorTable) {
+    int id;
+    int choice = -1;
+
+    while (true) {
+        id = -1;
+        cout << endl;
+        cout << "ACTOR LIST" << endl << "----------" << endl;
+        actorTable.print();
+        cout << "0. Return to menu" << endl << endl;
+        cout << "Select actor to update (Enter actor ID): ";
+        cin >> id;
+
+        if (id == 0) return;
+
+        cout << endl;
+
+        Actor* actor = actorTable.get(id);
+
+        if (actor != nullptr) {
+            while (choice != 0) {
+                actor->print();
+                cout << "1. Name" << endl << "2. Birth Year" << endl << "0. Return to actor select" << endl << endl;
+                cout << "Select which to update: ";
+                cin >> choice;
+
+                if (choice == 1) {
+                    string newName;
+                    cout << endl << "Enter new name: ";
+                    cin.ignore();
+                    getline(cin, newName);
+
+                    actor->setName(newName);
+
+                    cout << endl;
+                }
+                else if (choice == 2) {
+                    int newYear;
+                    while (true) {
+                        cout << endl << "Enter new birth year: ";
+                        cin >> newYear;
+
+                        if (cin.fail()) {
+                            // Handle invalid input
+                            cin.clear();               // Clear error flag
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+                            cout << endl << "Invalid input. Please enter a valid birth year." << endl;
+                            continue;
+                        }
+                        if (newYear >= 1700 && newYear <= 2025) {
+                            break; // Valid year
+                        }
+                        else {
+                            cout << endl << "Please enter a birth year between 1700 and 2025." << endl;
+                        }
+                    }
+
+                    actor->setBirthYear(newYear);
+
+                    cout << endl;
+                }
+                else if (choice == 0) {
+                    break;
+                }
+                else {
+                    cout << endl << "Invalid choice. Please try again." << endl << endl;
+                }
+            }
+            updateActorsCSV(actorTable);
+        }
+        else {
+            cout << "Invalid ID. Please try again." << endl << endl;
+        }
+    }
+}
+
+void updateMovie(Dictionary<Movie>& movieTable) {
+    int id;
+    int choice = -1;
+
+    while (true) {
+        id = -1;
+        cout << endl;
+        cout << "MOVIE LIST" << endl << "----------" << endl;
+        movieTable.print();
+        cout << "0. Return to menu" << endl << endl;
+        cout << "Select movie to update (Enter movie ID): ";
+        cin >> id;
+
+        if (id == 0) return;
+
+        cout << endl;
+
+        Movie* movie = movieTable.get(id);
+
+        if (movie != nullptr) {
+            while (choice != 0) {
+                movie->print();
+                cout << "1. Title" << endl << "2. Plot" << endl << "3. Release Year" << endl << "0. Return to movie select" << endl << endl;
+                cout << "Select which to update: ";
+                cin >> choice;
+
+                if (choice == 1) {
+                    string newTitle;
+                    cout << endl << "Enter new title: ";
+                    cin.ignore();
+                    getline(cin, newTitle);
+
+                    movie->setTitle(newTitle);
+
+                    cout << endl;
+                }
+                else if (choice == 2) {
+                    string newPlot;
+                    cout << endl << "Enter new plot: ";
+                    cin.ignore();
+                    getline(cin, newPlot);
+
+                    movie->setPlot(newPlot);
+
+                    cout << endl;
+                }
+                else if (choice == 3) {
+                    int newYear;
+                    while (true) {
+                        cout << endl << "Enter new release year: ";
+                        cin >> newYear;
+
+                        if (cin.fail()) {
+                            // Handle invalid input
+                            cin.clear();               // Clear error flag
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+                            cout << endl << "Invalid input. Please enter a valid release year." << endl;
+                            continue;
+                        }
+                        if (newYear >= 1800 && newYear <= 2025) {
+                            break; // Valid year
+                        }
+                        else {
+                            cout << endl << "Please enter a release year between 1800 and 2025." << endl;
+                        }
+                    }
+
+                    movie->setYear(newYear);
+
+                    cout << endl;
+                }
+                else if (choice == 0) {
+                    break;
+                }
+                else {
+                    cout << endl << "Invalid choice. Please try again." << endl << endl;
+                }
+            }
+            updateMoviesCSV(movieTable);
+        }
+        else {
+            cout << "Invalid ID. Please try again." << endl;
+        }
+    }
 }
 
 int getCurrentYear() { // current year to calc how old the actor is
@@ -195,6 +443,38 @@ void updateMoviesCSV(const Dictionary<Movie>& movieTable) {
     }
 }
 
+void updateCastCSV(const Dictionary<Movie>& movieTable) {
+    ofstream file("data/cast.csv");  // Open the file in overwrite mode
+    if (file.is_open()) {
+        // Write the header (optional, if your CSV needs one)
+        file << "person_id,movie_id\n";
+
+        // Get all the movies with their keys (movie IDs)
+        List<KeyValue<int, Movie>> allMovies = movieTable.getAllItemsWithKeys();
+
+        // Iterate over all movies and their associated actors
+        for (int i = 0; i < allMovies.getLength(); ++i) {
+            KeyValue<int, Movie> pair = allMovies.get(i);  // Get each key-value pair
+            int movieID = pair.key;  // Movie ID (key)
+            Movie* movie = pair.value;  // Movie object (value)
+
+            // Get the list of actor IDs associated with the movie
+            const List<int>& actorIDs = movie->getActors();
+
+            // Write each actor-movie relationship to the CSV
+            for (int j = 0; j < actorIDs.getLength(); ++j) {
+                int actorID = actorIDs.get(j);
+                file << actorID << "," << movieID << "\n";  // Write actor ID and movie ID
+            }
+        }
+
+        file.close();
+    }
+    else {
+        cerr << "Failed to open cast.csv for writing.\n";
+    }
+}
+
 // Function to generate a unique ID
 template <typename T>
 int generateUniqueID(const Dictionary<T>& dictionary) {
@@ -214,21 +494,48 @@ void addActor(Dictionary<Actor>& actorTable) {
     int birthYear;
     string name;
 
-    int id = generateUniqueID(actorTable); // Generate a unique ID
+    // Generate a unique ID
+    int id = generateUniqueID(actorTable);
     cout << "Generated actor ID: " << id << endl;
-    cout << "Enter actor name: ";
-    cin.ignore();
+
+    // Input actor name
+    cout << "Enter actor name (or 0 to exit): ";
+    cin.ignore(); // Clear any leftover newline from previous input
     getline(cin, name);
-    cout << "Enter actor birth year: ";
-    cin >> birthYear;
+
+    if (name == "0") return;
+
+    // Input actor birth year
+    while (true) {
+        cout << "Enter actor birth year (or 0 to exit): ";
+        cin >> birthYear;
+
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+            cout << endl << "Invalid input. Please enter a valid birth year." << endl << endl;
+            continue;
+        }
+
+        if (birthYear == 0) return;
+
+        if (birthYear >= 1700 && birthYear <= 2025) {
+            break; // Valid year
+        }
+        else {
+            cout << endl << "Please enter a birth year between 1700 and 2025." << endl << endl;
+        }
+    }
 
     Actor* actor = new Actor(name, birthYear);
     if (actorTable.add(id, actor)) {
-        cout << "Actor added successfully.\n";
+        cout << endl << "Actor added successfully." << endl;
         updateActorsCSV(actorTable);
     }
     else {
-        cout << "Actor with this ID already exists.\n";
+        cout << "Actor with this ID already exists." << endl;
+        delete actor;
     }
 }
 
@@ -236,23 +543,53 @@ void addMovie(Dictionary<Movie>& movieTable) {
     int year;
     string title, plot;
 
-    int id = generateUniqueID(movieTable); // Generate a unique ID
+    // Generate a unique ID
+    int id = generateUniqueID(movieTable);
     cout << "Generated movie ID: " << id << endl;
-    cout << "Enter movie title: ";
-    cin.ignore();
-    getline(cin, title);
-    cout << "Enter movie plot: ";
-    getline(cin, plot);
-    cout << "Enter movie release year: ";
-    cin >> year;
 
+    // Input movie title
+    cout << "Enter movie title (or 0 to exit): ";
+    cin.ignore(); // Clear leftover newline from previous input
+    getline(cin, title);
+    if (title == "0") return;
+
+    // Input movie plot
+    cout << "Enter movie plot (or 0 to exit): ";
+    getline(cin, plot);
+    if (plot == "0") return;
+
+    // Input movie release year
+    while (true) {
+        cout << "Enter movie release year (or 0 to exit): ";
+        cin >> year;
+
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear(); // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+            cout << endl << "Invalid input. Please enter a valid release year." << endl << endl;
+            continue;
+        }
+
+        if (year == 0) return;
+
+        if (year >= 1800 && year <= 2025) {
+            break; // Valid year
+        }
+        else {
+            cout << endl << "Please enter a release year between 1800 and 2025." << endl << endl;
+        }
+    }
+
+    // Add the movie to the dictionary
     Movie* movie = new Movie(title, plot, year);
     if (movieTable.add(id, movie)) {
-        cout << "Movie added successfully.\n";
+        cout << endl << "Movie added successfully." << endl;
         updateMoviesCSV(movieTable);
     }
     else {
-        cout << "Movie with this ID already exists.\n";
+        cout << "Movie with this ID already exists." << endl;
+        delete movie; // Clean up memory if adding fails
     }
 }
 
@@ -358,57 +695,3 @@ void parseCast(const string& filename, Dictionary<Actor>& actorTable, Dictionary
     }
     file.close();
 }
-
-/*
-int compareMovies(void* a, void* b) {
-    Movie* movieA = static_cast<Movie*>(a);
-    Movie* movieB = static_cast<Movie*>(b);
-    return movieA->getYear() - movieB->getYear(); // compare by release year
-}
-
-int compareActors(void* a, void* b) {
-    Actor* actorA = static_cast<Actor*>(a);
-    Actor* actorB = static_cast<Actor*>(b);
-    return actorA->getBirthYear() - actorB->getBirthYear(); // older actors appear first
-}
-
-void printMovie(void* item) {
-    Movie* movie = static_cast<Movie*>(item); // cast void* to Movie*
-    movie->print(); // using movie's print method
-}
-
-void printActor(void* item) {
-    Actor* actor = static_cast<Actor*>(item); // cast void* to Actor*
-    actor->print(); // using actor's print method
-}
-
-void displayMoviesWithinPastYears(Dictionary<Actor>& movieTable, int currentYear) {
-    SortedLinkedList sortedList(compareMovies); // using the comparator to sort movies
-    int yearThreshold = currentYear - 3;
-
-    // add movies within the threshold to the sorted list
-    movieTable.getMoviesWithinYearRange(yearThreshold, sortedList);
-
-    if (sortedList.getLength() == 0) {
-        cout << "No movies found within the past 3 years.\n";
-        return;
-    }
-
-    cout << "Movies made within the past 3 years:\n";
-    sortedList.display(printMovie); // Use the print function for movies
-}
-
-
-void displayActorsByAge(Dictionary<Actor>& actorTable, int x, int y) {
-    SortedLinkedList sortedList(compareActors); // using the comparator to sort actors by age
-    actorTable.getActorsByAge(x, y, sortedList, getCurrentYear()); // filter actors into the sorted list
-
-    if (sortedList.getLength() == 0) {
-        cout << "No actors found in the specified age range.\n";
-        return;
-    }
-
-    cout << "Actors aged between " << x << " and " << y << ":\n";
-    sortedList.display(printActor); // use the print function for actors
-}
-*/
