@@ -4,6 +4,7 @@
 #include "Actor.h"
 #include "Movie.h"
 #include "KeyValue.h"
+#include "SortedLinkedList.h"
 #include <memory>
 #include <fstream>
 #include <sstream>
@@ -16,18 +17,23 @@ void parseActors(const string& filename, Dictionary<Actor>& actorTable);
 void parseMovies(const string& filename, Dictionary<Movie>& movieTable);
 void parseCast(const string& filename, Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTable);
 int getCurrentYear();
-int compareMovies(void* a, void* b);
-int compareActors(void* a, void* b);
-void printMovie(void* item);
-void printActor(void* item);
-//void displayActorsByAge(Dictionary<Actor>& actorTable, int x, int y);
-//void displayMoviesWithinPastYears(Dictionary<Movie>& movieTable, int currentYear);
+void displayActorsByAgeRange(Dictionary<Actor>& actorTable, int minAge, int maxAge);
+void displayMoviesWithinPast3Years(Dictionary<Movie>& movieTable, int currentYear);
 void updateActorsCSV(const Dictionary<Actor>& actorTable);
 void updateMoviesCSV(const Dictionary<Movie>& movieTable);
 template <typename T>
 int generateUniqueID(const Dictionary<T>& dictionary);
 void addActor(Dictionary<Actor>& actorTable);
 void addMovie(Dictionary<Movie>& movieTable);
+
+/*
+int compareMovies(void* a, void* b);
+int compareActors(void* a, void* b);
+void printMovie(void* item);
+void printActor(void* item);
+void displayActorsByAge(Dictionary<Actor>& actorTable, int x, int y);
+void displayMoviesWithinPastYears(Dictionary<Movie>& movieTable, int currentYear);
+*/
 
 int main()
 {
@@ -62,7 +68,7 @@ int main()
 				continue;
             }
             // display actors by age range
-            //displayActorsByAge(actorTable, x, y);
+            displayActorsByAgeRange(actorTable, x, y);
         }
         else if (choice == 2) {
             int currentYear;
@@ -74,7 +80,7 @@ int main()
             }
 
 			// display movies within the past 3 years
-			//displayMoviesWithinPastYears(movieTable, currentYear);
+            displayMoviesWithinPast3Years(movieTable, currentYear);
         }
         else if (choice == 3) {
             addActor(actorTable);
@@ -97,58 +103,40 @@ int getCurrentYear() { // current year to calc how old the actor is
     return now.tm_year + 1900;
 }
 
-int compareMovies(void* a, void* b) {
-    Movie* movieA = static_cast<Movie*>(a);
-    Movie* movieB = static_cast<Movie*>(b);
-    return movieA->getYear() - movieB->getYear(); // compare by release year
-}
+void displayActorsByAgeRange(Dictionary<Actor>& actorTable, int minAge, int maxAge) {
+    int currentYear = getCurrentYear();
+    SortedList<Actor*> sortedActors;
 
-int compareActors(void* a, void* b) {
-    Actor* actorA = static_cast<Actor*>(a);
-    Actor* actorB = static_cast<Actor*>(b);
-    return actorA->getBirthYear() - actorB->getBirthYear(); // older actors appear first
-}
+    List<KeyValue<int, Actor>> allActors = actorTable.getAllItemsWithKeys();
+    for (int i = 0; i < allActors.getLength(); i++) {
+        KeyValue<int, Actor> kv = allActors.get(i);
+        Actor* actor = kv.value;
 
-void printMovie(void* item) {
-    Movie* movie = static_cast<Movie*>(item); // cast void* to Movie*
-    movie->print(); // using movie's print method
-}
-
-void printActor(void* item) {
-    Actor* actor = static_cast<Actor*>(item); // cast void* to Actor*
-    actor->print(); // using actor's print method
-}
-/*
-void displayMoviesWithinPastYears(Dictionary<Actor>& movieTable, int currentYear) {
-    SortedLinkedList sortedList(compareMovies); // using the comparator to sort movies
-    int yearThreshold = currentYear - 3;
-
-	// add movies within the threshold to the sorted list
-    movieTable.getMoviesWithinYearRange(yearThreshold, sortedList);
-
-    if (sortedList.getLength() == 0) {
-        cout << "No movies found within the past 3 years.\n";
-        return;
+        int age = currentYear - actor->getBirthYear();
+        if (age >= minAge && age <= maxAge) {
+            sortedActors.add(actor);
+        }
     }
 
-    cout << "Movies made within the past 3 years:\n";
-    sortedList.display(printMovie); // Use the print function for movies
+    cout << "\nActors aged between " << minAge << " and " << maxAge << ":\n";
+    sortedActors.print();
 }
+void displayMoviesWithinPast3Years(Dictionary<Movie>& movieTable, int currentYear) {
+    SortedList<Movie*> sortedMovies;
 
+    List<KeyValue<int, Movie>> allMovies = movieTable.getAllItemsWithKeys();
+    for (int i = 0; i < allMovies.getLength(); i++) {
+        KeyValue<int, Movie> kv = allMovies.get(i);
+        Movie* movie = kv.value;
 
-void displayActorsByAge(Dictionary<Actor>& actorTable, int x, int y) {
-    SortedLinkedList sortedList(compareActors); // using the comparator to sort actors by age
-    actorTable.getActorsByAge(x, y, sortedList, getCurrentYear()); // filter actors into the sorted list
-
-    if (sortedList.getLength() == 0) {
-        cout << "No actors found in the specified age range.\n";
-        return;
+        if (currentYear - movie->getYear() <= 3) {
+            sortedMovies.add(movie);
+        }
     }
 
-    cout << "Actors aged between " << x << " and " << y << ":\n";
-    sortedList.display(printActor); // use the print function for actors
+    cout << "\nMovies from the past 3 years:\n";
+    sortedMovies.print();
 }
-*/
 
 void updateActorsCSV(const Dictionary<Actor>& actorTable) {
     ofstream file("data/actors.csv");  // Open the file in overwrite mode
@@ -370,3 +358,57 @@ void parseCast(const string& filename, Dictionary<Actor>& actorTable, Dictionary
     }
     file.close();
 }
+
+/*
+int compareMovies(void* a, void* b) {
+    Movie* movieA = static_cast<Movie*>(a);
+    Movie* movieB = static_cast<Movie*>(b);
+    return movieA->getYear() - movieB->getYear(); // compare by release year
+}
+
+int compareActors(void* a, void* b) {
+    Actor* actorA = static_cast<Actor*>(a);
+    Actor* actorB = static_cast<Actor*>(b);
+    return actorA->getBirthYear() - actorB->getBirthYear(); // older actors appear first
+}
+
+void printMovie(void* item) {
+    Movie* movie = static_cast<Movie*>(item); // cast void* to Movie*
+    movie->print(); // using movie's print method
+}
+
+void printActor(void* item) {
+    Actor* actor = static_cast<Actor*>(item); // cast void* to Actor*
+    actor->print(); // using actor's print method
+}
+
+void displayMoviesWithinPastYears(Dictionary<Actor>& movieTable, int currentYear) {
+    SortedLinkedList sortedList(compareMovies); // using the comparator to sort movies
+    int yearThreshold = currentYear - 3;
+
+    // add movies within the threshold to the sorted list
+    movieTable.getMoviesWithinYearRange(yearThreshold, sortedList);
+
+    if (sortedList.getLength() == 0) {
+        cout << "No movies found within the past 3 years.\n";
+        return;
+    }
+
+    cout << "Movies made within the past 3 years:\n";
+    sortedList.display(printMovie); // Use the print function for movies
+}
+
+
+void displayActorsByAge(Dictionary<Actor>& actorTable, int x, int y) {
+    SortedLinkedList sortedList(compareActors); // using the comparator to sort actors by age
+    actorTable.getActorsByAge(x, y, sortedList, getCurrentYear()); // filter actors into the sorted list
+
+    if (sortedList.getLength() == 0) {
+        cout << "No actors found in the specified age range.\n";
+        return;
+    }
+
+    cout << "Actors aged between " << x << " and " << y << ":\n";
+    sortedList.display(printActor); // use the print function for actors
+}
+*/

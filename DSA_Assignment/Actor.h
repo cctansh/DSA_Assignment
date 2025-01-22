@@ -18,4 +18,5 @@ public:
 	const List<int>& getMovies() const;
 	void addMovie(int);
 	void print();
+	bool operator<(const Actor& other) const;
 };

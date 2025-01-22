@@ -37,3 +37,7 @@ const List<int>& Movie::getActors() const {
 void Movie::print() {
 	cout << title << ", " << year << endl;
 }
+
+bool Movie::operator<(const Movie& other) const {
+    return year < other.year; // Sort by ascending release year
+}

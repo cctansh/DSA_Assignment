@@ -29,3 +29,7 @@ const List<int>& Actor::getMovies() const {
 void Actor::print() {
 	cout << name << ", " << birthYear << endl;
 }
+
+bool Actor::operator<(const Actor& other) const {
+    return birthYear > other.birthYear; // Sort by ascending age
+}

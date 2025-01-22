@@ -1,5 +1,6 @@
 #include "SortedLinkedList.h"
 
+/*
 SortedLinkedList::SortedLinkedList(int (*comparator)(void*, void*)) : firstNode(nullptr), size(0), compare(comparator) {}
 
 SortedLinkedList::~SortedLinkedList() {
@@ -42,3 +43,4 @@ void SortedLinkedList::display(void (*print)(void*)) {
 int SortedLinkedList::getLength() {
     return size;
 }
+*/

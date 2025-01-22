@@ -21,4 +21,5 @@ public:
 	const List<int>& getActors() const;
 	void addActor(int);
 	void print();
+	bool operator<(const Movie& other) const;
 };

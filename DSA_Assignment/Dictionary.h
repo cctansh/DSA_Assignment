@@ -3,7 +3,7 @@
 #include "List.h"
 #include "KeyValue.h"
 #include<string>
-#include "SortedLinkedList.h"
+//#include "SortedLinkedList.h"
 #include "Movie.h"
 #include "Actor.h"
 using namespace std;
@@ -51,6 +51,7 @@ public:
 	// Retrieve all key-value pairs in the dictionary
 	List<KeyValue<KeyType, ValueType>> getAllItemsWithKeys() const;
 
+    /*
 	// get the actors within specified age range
 	// pre : minimum age (x) must be less than or equal to maximum age (y)
 	// post : sortedLinkedList contains actors within the specified age range
@@ -62,6 +63,7 @@ public:
 	// post : sortedLinkedList contains movies released on or after the year threshold
 	// sortedlinkedlist has movies sorted by release year in ascending order
 	void getMoviesWithinYearRange(int yearThreshold, SortedLinkedList& sortedList);
+    */
 };
 
 // Constructor
