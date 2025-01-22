@@ -1,37 +1,39 @@
 #include "Movie.h"
-Movie::Movie(string t, string p, int y) {
-	title = t;
-	plot = p;
-	year = y;
-	actors = List();
+Movie::Movie(const string& title, const string& plot, int year)
+    : title(title), plot(plot), year(year) {}
+
+void Movie::setTitle(const string& newTitle) {
+    title = newTitle;
 }
-void Movie::setTitle(string t) {
-	title = t;
+
+string Movie::getTitle() const {
+    return title;
 }
-string Movie::getTitle() {
-	return title;
+
+void Movie::setPlot(const string& newPlot) {
+    plot = newPlot;
 }
-void Movie::setPlot(string p) {
-	plot = p;
+
+string Movie::getPlot() const {
+    return plot;
 }
-string Movie::getPlot() {
-	return plot;
+
+void Movie::setYear(int newYear) {
+    year = newYear;
 }
-void Movie::setYear(int y) {
-	year = y;
+
+int Movie::getYear() const {
+    return year;
 }
-int Movie::getYear() {
-	return year;
+
+void Movie::addActor(int actorID) {
+    actors.add(actorID);
 }
-void Movie::setActors(List a) {
-	actors = a;
+
+const List<int>& Movie::getActors() const {
+    return actors;
 }
-List Movie::getActors() {
-	return actors;
-}
-void Movie::addActor(int* actorId) {
-	actors.add(actorId);
-}
+
 void Movie::print() {
-	std::cout << title << ", " << year << endl;
+	cout << title << ", " << year << endl;
 }

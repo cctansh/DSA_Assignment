@@ -1,71 +1,135 @@
 #pragma once
 #include <iostream>
+#include <memory>
+#include <functional>
+#include <type_traits>
+#include <stdexcept>
 using namespace std;
 
-const int MAX = 100;
-
-class List
-{
+template <typename T>
+class List {
 private:
-	struct Node
-	{
-		void* item;	// data item
-		Node* next;	// pointer pointing to next item
-	};
+    struct Node {
+        T item;
+        Node* next;
+    };
 
-	Node* firstNode;	// point to the first item
-	int  size;			// number of items in the list
-
-	// TO DO: ADD BACKNODE
+    Node* firstNode;
+    int size;
 
 public:
-	List();			// constructor
+    // Constructor
+    List();
 
-	~List();		// destructor
+    // Destructor
+    ~List();
 
-	// add an item to the back of the list (append)
-	// pre : size < MAX_SIZE
-	// post: item is added to the back of the list
-	//       size of list is increased by 1
-	bool add(void* item);
+    // Add an item to the list
+    bool add(const T& item);
 
-	// add an item at a specified position in the list (insert)
-	// pre : 0 <= index <= size
-	// post: item is added to the specified position in the list
-	//       items after the position are shifted back by 1 position
-	//       size of list is increased by 1
-	bool add(int index, void* item);
+    // Remove an item at a specific index
+    void remove(int index);
 
-	// remove an item at a specified position in the list
-	// pre : 0 <= index < size
-	// post: item is removed the specified position in the list
-	//       items after the position are shifted forward by 1 position
-	//       size of list is decreased by 1
-	void remove(int index);
+    // Get an item at a specific index
+    const T& get(int index) const;
 
-	// get an item at a specified position of the list (retrieve)
-	// pre : 0 <= index < size
-	// post: none
-	// return the item in the specified index of the list
-	void* get(int index);
+    // Print all items
+    void print() const;
 
-	// check if the list is empty
-	// pre : none
-	// post: none
-	// return true if the list is empty; otherwise returns false
-	bool isEmpty();
+    bool isEmpty() const;
 
-	// check the size of the list
-	// pre : none
-	// post: none
-	// return the number of items in the list
-	int getLength();
-
-	//------------------- Other useful functions -----------------
-
-	// display the items in the list
-	void print();
-
-	void replace(int index, void* item);
+    int getLength() const;
 };
 
+template <typename T>
+List<T>::List() : firstNode(nullptr), size(0) {}
+
+template <typename T>
+List<T>::~List() {
+    while (firstNode) {
+        Node* temp = firstNode;
+        firstNode = firstNode->next;
+
+        if constexpr (is_pointer<T>::value) {
+            delete temp->item; // Deletes the object pointed to by the pointer
+        }
+
+        delete temp; // Deletes the Node itself
+    }
+}
+
+template <typename T>
+bool List<T>::add(const T& item) {
+    if (size >= 100) return false;
+
+    Node* newNode = new Node{ item, nullptr };
+    if (!firstNode) {
+        firstNode = newNode;
+    }
+    else {
+        Node* temp = firstNode;
+        while (temp->next) temp = temp->next;
+        temp->next = newNode;
+    }
+
+    size++;
+    return true;
+}
+
+template <typename T>
+void List<T>::remove(int index) {
+    if (index < 0 || index >= size) throw out_of_range("Index out of range");
+
+    Node* temp = firstNode;
+    Node* prev = nullptr;
+
+    for (int i = 0; i < index; i++) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (prev) {
+        prev->next = temp->next;
+    }
+    else {
+        firstNode = temp->next;
+    }
+
+    if constexpr (is_pointer<T>::value) {
+        delete temp->item; // Deletes the object pointed to by the pointer
+    }
+
+    delete temp; // Delete the Node itself
+    size--;
+}
+
+template <typename T>
+const T& List<T>::get(int index) const {
+    if (index < 0 || index >= size) throw out_of_range("Index out of range");
+
+    Node* temp = firstNode;
+    for (int i = 0; i < index; i++) {
+        temp = temp->next;
+    }
+
+    return temp->item;
+}
+
+template <typename T>
+void List<T>::print() const {
+    Node* temp = firstNode;
+    while (temp) {
+        cout << *temp->item << endl;  // Assuming T is a pointer and has operator<< defined
+        temp = temp->next;
+    }
+}
+
+template <typename T>
+bool List<T>::isEmpty() const {
+    return size == 0;
+}
+
+template <typename T>
+int List<T>::getLength() const {
+    return size;
+}

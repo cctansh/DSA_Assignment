@@ -8,15 +8,14 @@ class Actor
 private:
 	string name;
 	int birthYear;
-	List movies;
+	List<int> movies;
 public:
-	Actor(string, int);
-	void setName(string);
-	string getName();
+	Actor(const string&, int);
+	void setName(const string&);
+	string getName() const;
 	void setBirthYear(int);
-	int getBirthYear();
-	void setMovies(List);
-	List getMovies();
-	void addMovie(int*);
+	int getBirthYear() const;
+	const List<int>& getMovies() const;
+	void addMovie(int);
 	void print();
 };

@@ -1,30 +1,31 @@
 #include "Actor.h"
-Actor::Actor(string n, int y) {
-	name = n;
-	birthYear = y;
-	movies = List();
+
+Actor::Actor(const string& name, int birthYear) : name(name), birthYear(birthYear) {}
+
+void Actor::setName(const string& newName) {
+    name = newName;
 }
-void Actor::setName(string n) {
-	name = n;
+
+string Actor::getName() const {
+    return name;
 }
-string Actor::getName() {
-	return name;
+
+void Actor::setBirthYear(int year) {
+    birthYear = year;
 }
-void Actor::setBirthYear(int y) {
-	birthYear = y;
+
+int Actor::getBirthYear() const {
+    return birthYear;
 }
-int Actor::getBirthYear() {
-	return birthYear;
+
+void Actor::addMovie(int movieID) {
+    movies.add(movieID);
 }
-void Actor::setMovies(List m) {
-	movies = m;
+
+const List<int>& Actor::getMovies() const {
+    return movies;
 }
-List Actor::getMovies() {
-	return movies;
-}
-void Actor::addMovie(int* movieId) {
-	movies.add(movieId);
-}
+
 void Actor::print() {
-	std::cout << name << ", " << birthYear << endl;
+	cout << name << ", " << birthYear << endl;
 }
