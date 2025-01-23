@@ -31,5 +31,13 @@ void Actor::print() {
 }
 
 bool Actor::operator<(const Actor& other) const {
-    return birthYear > other.birthYear; // Sort by ascending age
+    if (birthYear == other.birthYear) {
+        return name < other.name; // Secondary sort by name
+    }
+    return birthYear < other.birthYear; // Primary sort by birth year
+}
+// Overload << operator
+ostream& operator<<(ostream& os, const Actor& actor) {
+    os << "Name: " << actor.name << ", Birth Year: " << actor.birthYear;
+    return os;
 }

@@ -39,5 +39,13 @@ void Movie::print() {
 }
 
 bool Movie::operator<(const Movie& other) const {
-    return year < other.year; // Sort by ascending release year
+    if (year == other.year) {
+        return title < other.title; // Secondary sort by title
+    }
+    return year < other.year; // Primary sort by year
+}
+ostream& operator<<(ostream& os, const Movie& movie) {
+    os << "Title: " << movie.title
+        << ", Year: " << movie.year;
+    return os;
 }

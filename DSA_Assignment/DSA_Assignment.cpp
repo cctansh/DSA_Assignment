@@ -17,8 +17,10 @@ void parseActors(const string& filename, Dictionary<Actor>& actorTable);
 void parseMovies(const string& filename, Dictionary<Movie>& movieTable);
 void parseCast(const string& filename, Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTable);
 int getCurrentYear();
-void displayActorsByAgeRange(Dictionary<Actor>& actorTable, int minAge, int maxAge);
-void displayMoviesWithinPast3Years(Dictionary<Movie>& movieTable, int currentYear);
+void displayActorsByAge(const Dictionary<Actor>& actorTable, int x, int y);
+void displayMoviesByYear(const Dictionary<Movie>& movieTable, int currentYear);
+void displayMoviesForActor(const Dictionary<Actor>& actorTable, const string& actorName, const Dictionary<Movie>& movieTable);
+void displayActorsInMovie(const Dictionary<Movie>& movieTable, const string& movieName, const Dictionary<Actor>& actorTable);
 void updateActorsCSV(const Dictionary<Actor>& actorTable);
 void updateMoviesCSV(const Dictionary<Movie>& movieTable);
 template <typename T>
@@ -42,13 +44,15 @@ int main()
 
     while (choice != 0) {
         cout << "--------------- MENU ---------------" << endl;
-        cout << "1. Display actors by age range" << endl;
-        cout << "2. Display movies within past 3 years" << endl;
-        cout << "3. Add actor" << endl;
-        cout << "4. Add movie" << endl;
-        cout << "5. Add actor to movie" << endl;
-        cout << "6. Update actor" << endl;
-        cout << "7. Update movie" << endl;
+        cout << "1. Add actor" << endl;
+        cout << "2. Add movie" << endl;
+        cout << "3. Add actor to movie" << endl;
+        cout << "4. Update actor" << endl;
+        cout << "5. Update movie" << endl;
+        cout << "6. Display actors within a specified age range, sorted in ascending order by age" << endl;
+        cout << "7. Display movies released within the past 3 years, sorted in ascending order by release year" << endl;
+        cout << "8. Display all movies an actor has starred in, sorted in alphabetical order" << endl;
+        cout << "9. Display all actors in a particular movie, sorted in alphabetical order" << endl;
         cout << "0. Exit" << endl << endl;
         cout << "Enter your choice: ";
         cin >> choice;
@@ -57,19 +61,42 @@ int main()
             break;
         }
         else if (choice == 1) {
+            cout << "------------ ADD ACTOR ------------" << endl;
+            addActor(actorTable);
+        }
+        else if (choice == 2) {
+            cout << "------------ ADD MOVIE ------------" << endl;
+            addMovie(movieTable);
+        }
+        else if (choice == 3) {
+            cout << "------- ADD ACTOR TO MOVIE -------" << endl;
+            addActorToMovie(actorTable, movieTable);
+
+        }
+        else if (choice == 4) {
+            cout << "----------- UPDATE ACTOR -----------" << endl;
+            updateActor(actorTable);
+        }
+        else if (choice == 5) {
+            cout << "----------- UPDATE MOVIE -----------" << endl;
+            updateMovie(movieTable);
+        }
+        else if (choice == 6) {
             int x, y;
-            cout << "Enter the minimum age (x): ";
+            cout << "----------- DISPLAY ACTOR IN AGE RANGE -----------" << endl;
+            cout << "Enter the minimum age: ";
             cin >> x;
-            cout << "Enter the maximum age (y): ";
+            cout << "Enter the maximum age: ";
             cin >> y;
             if (y <= x) {
                 cout << "Invalid age range. Please try again." << endl;
                 continue;
             }
             // display actors by age range
-            displayActorsByAgeRange(actorTable, x, y);
+            displayActorsByAge(actorTable, x, y);
         }
-        else if (choice == 2) {
+        else if (choice == 7) {
+            cout << "----------- DISPLAY MOVIES MADE WITHIN PAST 3 YEARS -----------" << endl;
             int currentYear;
             cout << "Enter the current year: ";
             cin >> currentYear;
@@ -79,28 +106,23 @@ int main()
             }
 
             // display movies within the past 3 years
-            displayMoviesWithinPast3Years(movieTable, currentYear);
+            displayMoviesByYear(movieTable, currentYear);
         }
-        else if (choice == 3) {
-            cout << "------------ ADD ACTOR ------------" << endl;
-            addActor(actorTable);
-        }
-        else if (choice == 4) {
-            cout << "------------ ADD MOVIE ------------" << endl;
-            addMovie(movieTable);
-        }
-        else if (choice == 5) {
-            cout << "------- ADD ACTOR TO MOVIE -------" << endl;
-            addActorToMovie(actorTable, movieTable);
-
-        }
-        else if (choice == 6) {
-            cout << "----------- UPDATE ACTOR -----------" << endl;
-            updateActor(actorTable);
-        }
-        else if (choice == 7) {
-            cout << "----------- UPDATE MOVIE -----------" << endl;
-            updateMovie(movieTable);
+		else if (choice == 8) {
+			string actorName;
+			cout << "----------- DISPLAY MOVIES BY ACTOR STARRED IN -----------" << endl;
+            cout << "Enter Actor Name: ";
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            getline(cin, actorName);
+			displayMoviesForActor(actorTable, actorName, movieTable);
+		}
+        else if (choice == 9) {
+			string movieName;
+			cout << "----------- DISPLAY ACTORS IN A MOVIE -----------" << endl;
+			cout << "Enter Movie Name: ";
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			getline(cin, movieName);
+			displayActorsInMovie(movieTable, movieName, actorTable);
         }
         else {
             cout << "Invalid choice. Please try again.\n";
@@ -351,39 +373,124 @@ int getCurrentYear() { // current year to calc how old the actor is
     return now.tm_year + 1900;
 }
 
-void displayActorsByAgeRange(Dictionary<Actor>& actorTable, int minAge, int maxAge) {
-    int currentYear = getCurrentYear();
-    SortedList<Actor*> sortedActors;
+// e)
+void displayActorsByAge(const Dictionary<Actor>& actorTable, int x, int y) {
+    // Create a sorted linked list with a custom comparison function for age
+    SortedLinkedList<Actor*> sortedList([](Actor* a, Actor* b) {
+        int ageA = getCurrentYear() - a->getBirthYear();
+        int ageB = getCurrentYear() - b->getBirthYear();
+        return ageA < ageB; // Sort in ascending order of age
+        });
 
-    List<KeyValue<int, Actor>> allActors = actorTable.getAllItemsWithKeys();
-    for (int i = 0; i < allActors.getLength(); i++) {
-        KeyValue<int, Actor> kv = allActors.get(i);
-        Actor* actor = kv.value;
-
-        int age = currentYear - actor->getBirthYear();
-        if (age >= minAge && age <= maxAge) {
-            sortedActors.add(actor);
+    List<KeyValue<int, Actor>> actors = actorTable.getAllItemsWithKeys();
+    for (int i = 0; i < actors.getLength(); i++) {
+        Actor* actor = actors.get(i).value;
+        int age = getCurrentYear() - actor->getBirthYear();
+        if (age >= x && age <= y) {
+            sortedList.add(actor); // Add to the sorted list if within age range
         }
     }
 
-    cout << "\nActors aged between " << minAge << " and " << maxAge << ":\n";
-    sortedActors.print();
+    cout << "Actors between ages " << x << " and " << y << " (sorted by age):" << endl;
+    sortedList.print(); // Print sorted actors
 }
-void displayMoviesWithinPast3Years(Dictionary<Movie>& movieTable, int currentYear) {
-    SortedList<Movie*> sortedMovies;
 
-    List<KeyValue<int, Movie>> allMovies = movieTable.getAllItemsWithKeys();
-    for (int i = 0; i < allMovies.getLength(); i++) {
-        KeyValue<int, Movie> kv = allMovies.get(i);
-        Movie* movie = kv.value;
+// f)
+void displayMoviesByYear(const Dictionary<Movie>& movieTable, int currentYear) {
+    // Create a sorted linked list with a comparison function for ascending order of year
+    SortedLinkedList<Movie*> sortedList([](Movie* a, Movie* b) {
+        return *a < *b; // Use the Movie's custom operator<
+        });
 
-        if (currentYear - movie->getYear() <= 3) {
-            sortedMovies.add(movie);
+    // Retrieve all movies from the dictionary
+    List<KeyValue<int, Movie>> movies = movieTable.getAllItemsWithKeys();
+
+    // Add movies from the past 3 years (inclusive) to the sorted list
+    for (int i = 0; i < movies.getLength(); i++) {
+        Movie* movie = movies.get(i).value;
+        if (movie->getYear() >= (currentYear - 3) && movie->getYear() <= currentYear) {
+            sortedList.add(movie); // Add only movies within the past 3 years
         }
     }
 
-    cout << "\nMovies from the past 3 years:\n";
-    sortedMovies.print();
+    // Print sorted movies
+    if (sortedList.getSize() > 0) {
+        cout << "Movies made within the past 3 years (sorted by year):" << endl;
+        sortedList.print();
+    }
+    else {
+        cout << "No movies found within the past 3 years." << endl;
+    }
+}
+
+// g)
+void displayMoviesForActor(const Dictionary<Actor>& actorTable, const string& actorName, const Dictionary<Movie>& movieTable) {
+    // Search for the actor by name in the actorTable
+    Actor* actor = nullptr;
+
+    List<KeyValue<int, Actor>> actors = actorTable.getAllItemsWithKeys(); // Get all actors in the dictionary
+    for (int i = 0; i < actors.getLength(); i++) {
+        if (actors.get(i).value->getName() == actorName) {
+            actor = actors.get(i).value; // Found the actor
+            break;
+        }
+    }
+
+    if (!actor) {
+        cout << "Actor \"" << actorName << "\" not found!" << endl;
+        return;
+    }
+
+    // Use SortedLinkedList for alphabetical order
+    SortedLinkedList<string> sortedList([](const string& a, const string& b) {
+        return a < b; // alphabetical order
+        });
+
+    const List<int>& movieIDs = actor->getMovies(); // Get the movie IDs the actor starred in
+    for (int i = 0; i < movieIDs.getLength(); i++) {
+        Movie* movie = movieTable.get(movieIDs.get(i));
+        if (movie) {
+            sortedList.add(movie->getTitle()); // Add movie titles to the sorted list
+        }
+    }
+
+    cout << "Movies starred in by " << actor->getName() << " (Alphabetical Order):" << endl;
+    sortedList.print(); // Print sorted movie titles
+}
+
+// h)
+void displayActorsInMovie(const Dictionary<Movie>& movieTable, const string& movieName, const Dictionary<Actor>& actorTable) {
+    // Search for the movie by name in the movieTable
+    Movie* movie = nullptr;
+
+    List<KeyValue<int, Movie>> movies = movieTable.getAllItemsWithKeys(); // Get all movies in the dictionary
+    for (int i = 0; i < movies.getLength(); i++) {
+        if (movies.get(i).value->getTitle() == movieName) {
+            movie = movies.get(i).value; // Found the movie
+            break;
+        }
+    }
+
+    if (!movie) {
+        cout << "Movie \"" << movieName << "\" not found!" << endl;
+        return;
+    }
+
+    // Use SortedLinkedList for alphabetical order
+    SortedLinkedList<string> sortedList([](const string& a, const string& b) {
+        return a < b; // alphabetical order
+        });
+
+    const List<int>& actorIDs = movie->getActors(); // Get the actor IDs in the movie
+    for (int i = 0; i < actorIDs.getLength(); i++) {
+        Actor* actor = actorTable.get(actorIDs.get(i));
+        if (actor) {
+            sortedList.add(actor->getName()); // Add actor names to the sorted list
+        }
+    }
+
+    cout << "Actors in the movie \"" << movie->getTitle() << "\" (Alphabetical Order):" << endl;
+    sortedList.print(); // Print sorted actor names
 }
 
 void updateActorsCSV(const Dictionary<Actor>& actorTable) {

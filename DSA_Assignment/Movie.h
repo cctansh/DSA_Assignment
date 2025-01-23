@@ -22,4 +22,5 @@ public:
 	void addActor(int);
 	void print();
 	bool operator<(const Movie& other) const;
+	friend ostream& operator<<(ostream& os, const Movie& movie);
 };
