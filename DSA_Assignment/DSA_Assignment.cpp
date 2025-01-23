@@ -56,6 +56,17 @@ int main()
         cout << "0. Exit" << endl << endl;
         cout << "Enter your choice: ";
         cin >> choice;
+
+        // handle non ints
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << endl << "Invalid choice. Please try again." << endl << endl;
+            choice = -1;
+            continue;
+        }
+
         cout << endl;
         if (choice == 0) {
             break;
@@ -125,7 +136,7 @@ int main()
 			displayActorsInMovie(movieTable, movieName, actorTable);
         }
         else {
-            cout << "Invalid choice. Please try again.\n";
+            cout << "Invalid choice. Please try again." << endl;
         }
         cout << endl;
     }
@@ -217,6 +228,14 @@ void updateActor(Dictionary<Actor>& actorTable) {
         cout << "Select actor to update (Enter actor ID): ";
         cin >> id;
 
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << endl << "Invalid ID. Please try again." << endl;
+            continue;
+        }
+
         if (id == 0) return;
 
         cout << endl;
@@ -229,6 +248,15 @@ void updateActor(Dictionary<Actor>& actorTable) {
                 cout << "1. Name" << endl << "2. Birth Year" << endl << "0. Return to actor select" << endl << endl;
                 cout << "Select which to update: ";
                 cin >> choice;
+
+                if (cin.fail()) {
+                    // Handle invalid input
+                    cin.clear();               // Clear error flag
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << endl << "Invalid choice. Please try again." << endl << endl;
+                    choice = -1;
+                    continue;
+                }
 
                 if (choice == 1) {
                     string newName;
@@ -275,7 +303,7 @@ void updateActor(Dictionary<Actor>& actorTable) {
             updateActorsCSV(actorTable);
         }
         else {
-            cout << "Invalid ID. Please try again." << endl << endl;
+            cout << "Invalid ID. Please try again." << endl;
         }
     }
 }
@@ -293,6 +321,14 @@ void updateMovie(Dictionary<Movie>& movieTable) {
         cout << "Select movie to update (Enter movie ID): ";
         cin >> id;
 
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << endl << "Invalid ID. Please try again." << endl;
+            continue;
+        }
+
         if (id == 0) return;
 
         cout << endl;
@@ -305,6 +341,15 @@ void updateMovie(Dictionary<Movie>& movieTable) {
                 cout << "1. Title" << endl << "2. Plot" << endl << "3. Release Year" << endl << "0. Return to movie select" << endl << endl;
                 cout << "Select which to update: ";
                 cin >> choice;
+
+                if (cin.fail()) {
+                    // Handle invalid input
+                    cin.clear();               // Clear error flag
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << endl << "Invalid choice. Please try again." << endl << endl;
+                    choice = -1;
+                    continue;
+                }
 
                 if (choice == 1) {
                     string newTitle;
