@@ -136,6 +136,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
+    <ClInclude Include="BinaryTree.h" />
     <ClInclude Include="Dictionary.h" />
     <ClInclude Include="KeyValue.h" />
     <ClInclude Include="List.h" />

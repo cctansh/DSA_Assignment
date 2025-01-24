@@ -51,15 +51,20 @@ public:
     }
 
     // Print all items
-    void print() const {
+    void print(function<void(const T&)> printFunction = nullptr) const {
         Node* current = head;
         while (current) {
-            // Handle if T is a pointer (e.g., Actor*, Movie*)
-            if constexpr (std::is_pointer<T>::value) {
-                cout << *current->item << endl; // Dereference the pointer
+            if (printFunction) {
+                printFunction(current->item); // Use the custom print function
             }
             else {
-                cout << current->item << endl;
+                // Default printing behavior
+                if constexpr (std::is_pointer<T>::value) {
+                    cout << *current->item << endl; // Dereference the pointer
+                }
+                else {
+                    cout << current->item << endl;
+                }
             }
             current = current->next;
         }
