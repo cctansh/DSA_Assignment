@@ -1,4 +1,3 @@
-#include <unordered_set>
 #include <iostream>
 #include "Dictionary.h"
 #include "List.h"
@@ -12,8 +11,6 @@
 #include <string>
 #include <random>
 #include <chrono>
-#include <algorithm>
-#include <cctype>
 using namespace std;
 
 // parse base data
@@ -29,7 +26,6 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable, int x, int y);
 void displayMoviesByYear(const Dictionary<Movie>& movieTable, int currentYear);
 void displayMoviesForActor(const Dictionary<Actor>& actorTable, const string& actorName, const Dictionary<Movie>& movieTable);
 void displayActorsInMovie(const Dictionary<Movie>& movieTable, const string& movieName, const Dictionary<Actor>& actorTable);
-void displayKnownActors(const Dictionary<Actor>& actorTable, const string& actorName, const Dictionary<Movie>& movieTable);
 
 template <typename T>
 int generateUniqueID(const Dictionary<T>& dictionary);
@@ -48,9 +44,6 @@ void rateActor(Dictionary<Actor>& actorTable);
 void rateMovie(Dictionary<Movie>& movieTable);
 void updateMovieRatingsCSV(const Dictionary<Movie>& movieTable);
 void updateActorRatingsCSV(const Dictionary<Actor>& actorTable);
-string normalizeString(const string& str);
-void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable, float minRating);
-void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable, float minRating);
 
 int main()
 {
@@ -75,13 +68,10 @@ int main()
         cout << "7.  Display movies released within the past 3 years, sorted in ascending order by release year" << endl;
         cout << "8.  Display all movies an actor has starred in, sorted in alphabetical order" << endl;
         cout << "9.  Display all actors in a particular movie, sorted in alphabetical order" << endl;
-        cout << "10. Display a list of all actors that a particular actor knows" << endl;
-        cout << "11. Display all ratings for an actor" << endl;
-        cout << "12. Display all ratings for a movie" << endl;
-        cout << "13. Rate an actor" << endl;
-        cout << "14. Rate a movie" << endl;
-        cout << "15. Display Movies above a minimum rating" << endl;
-        cout << "16. Display Actors above a minimum rating" << endl;
+        cout << "10. Display all ratings for an actor" << endl;
+        cout << "11. Display all ratings for a movie" << endl;
+        cout << "12. Rate an actor" << endl;
+        cout << "13. Rate a movie" << endl;
         cout << "0. Exit" << endl << endl;
         cout << "Enter your choice: ";
         cin >> choice;
@@ -164,67 +154,22 @@ int main()
 			getline(cin, movieName);
 			displayActorsInMovie(movieTable, movieName, actorTable);
         }
-		else if (choice == 10) {
-            string actorName;
-            cout << "----------- DISPLAY KNOWN ACTORS -----------" << endl;
-            cout << "Enter Actor Name: ";
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            getline(cin, actorName);
-			cout << endl;
-            displayKnownActors(actorTable, actorName, movieTable);
-		}
-        else if (choice == 11) {
+        else if (choice == 10) {
             cout << "------ DISPLAY ACTOR RATINGS ------" << endl;
             displayActorRatings(actorTable);
         }
-        else if (choice == 12) {
+        else if (choice == 11) {
             cout << "------ DISPLAY MOVIE RATINGS ------" << endl;
             displayMovieRatings(movieTable);
         }
-        else if (choice == 13) {
+        else if (choice == 12) {
             cout << "----------- RATE ACTOR -----------" << endl;
             rateActor(actorTable);
         }
-        else if (choice == 14) {
+        else if (choice == 13) {
             cout << "----------- RATE MOVIE -----------" << endl;
             rateMovie(movieTable);
         }
-        else if (choice == 15) {
-            cout << "----------- DISPLAY MOVIES OF A MINIMUM RATING -----------" << endl;
-            float minRating;
-            while (true) {
-                cout << "Enter the minimum rating (1-5): ";
-                cin >> minRating;
-                cout << endl;
-
-                if (cin.fail() || minRating < 1 || minRating > 5) {
-                    cin.clear(); // Clear error flag
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
-                    cout << "Invalid rating. Please enter a number between 1 and 5." << endl;
-                    continue;
-                }
-                break;
-            }
-            displayMoviesByMinimumRating(movieTable, minRating);
-        }
-		else if (choice == 16) {
-			cout << "----------- DISPLAY ACTORS OF A MINIMUM RATING -----------" << endl;
-            float minRating;
-            while (true) {
-                cout << "Enter the minimum rating (1-5): ";
-                cin >> minRating;
-				cout << endl;
-
-                if (cin.fail() || minRating < 1 || minRating > 5) {
-                    cin.clear(); // Clear error flag
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
-                    cout << "Invalid rating. Please enter a number between 1 and 5." << endl;
-                    continue;
-                }
-                break;
-            }
-            displayActorsByMinimumRating(actorTable, minRating);
-		}
         else {
             cout << "Invalid choice. Please try again." << endl;
         }
@@ -732,94 +677,6 @@ void displayActorsInMovie(const Dictionary<Movie>& movieTable, const string& mov
     sortedList.print(); // Print sorted actor names
 }
 
-// i)
-void displayKnownActors(const Dictionary<Actor>& actorTable, const string& actorName, const Dictionary<Movie>& movieTable) {
-    Actor* actor = nullptr;
-
-    // Find the actor by name
-    List<KeyValue<int, Actor>> allActors = actorTable.getAllItemsWithKeys();
-    for (int i = 0; i < allActors.getLength(); i++) {
-        if (normalizeString(allActors.get(i).value->getName()) == normalizeString(actorName)) {
-            actor = allActors.get(i).value;
-            break;
-        }
-    }
-
-    if (!actor) {
-        cout << "Actor \"" << actorName << "\" not found!" << endl;
-        return;
-    }
-
-    unordered_set<string> knownActorNames; // Store known actor names
-    unordered_set<int> visitedMovies;     // Keep track of visited movies to prevent duplicates
-
-    // Direct co-actors (Level 1)
-    const List<int>& movieIDs = actor->getMovies();
-    for (int i = 0; i < movieIDs.getLength(); i++) {
-        int movieID = movieIDs.get(i);
-        if (visitedMovies.find(movieID) == visitedMovies.end()) {
-            visitedMovies.insert(movieID);
-
-            Movie* movie = movieTable.get(movieID);
-            if (movie) {
-                const List<int>& coActorIDs = movie->getActors();
-                for (int j = 0; j < coActorIDs.getLength(); j++) {
-                    int coActorID = coActorIDs.get(j);
-                    Actor* coActor = actorTable.get(coActorID);
-                    if (coActor && normalizeString(coActor->getName()) != normalizeString(actor->getName())) {
-                        knownActorNames.insert(coActor->getName());
-                    }
-                }
-            }
-        }
-    }
-
-    // Indirect co-actors (Level 2)
-    unordered_set<string> secondLevelActorNames; // Prevent duplicates at level 2
-    for (const string& coActorName : knownActorNames) {
-        Actor* coActor = nullptr;
-
-        // Find co-actor in actorTable by name
-        for (int i = 0; i < allActors.getLength(); i++) {
-            if (normalizeString(allActors.get(i).value->getName()) == normalizeString(coActorName)) {
-                coActor = allActors.get(i).value;
-                break;
-            }
-        }
-
-        if (coActor) {
-            const List<int>& coActorMovies = coActor->getMovies();
-            for (int i = 0; i < coActorMovies.getLength(); i++) {
-                int movieID = coActorMovies.get(i);
-                if (visitedMovies.find(movieID) == visitedMovies.end()) {
-                    visitedMovies.insert(movieID);
-
-                    Movie* movie = movieTable.get(movieID);
-                    if (movie) {
-                        const List<int>& indirectActorIDs = movie->getActors();
-                        for (int j = 0; j < indirectActorIDs.getLength(); j++) {
-                            int indirectActorID = indirectActorIDs.get(j);
-                            Actor* indirectActor = actorTable.get(indirectActorID);
-                            if (indirectActor && knownActorNames.find(indirectActor->getName()) == knownActorNames.end()) {
-                                secondLevelActorNames.insert(indirectActor->getName());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Combine direct and indirect co-actors
-    cout << "Actors known by \"" << actor->getName() << "\":" << endl;
-    for (const string& name : knownActorNames) {
-        cout << "- " << name << endl;
-    }
-    for (const string& name : secondLevelActorNames) {
-        cout << "- " << name << endl;
-    }
-}
-
 
 // ADVANCED
 
@@ -1016,66 +873,6 @@ void rateMovie(Dictionary<Movie>& movieTable) {
     }
 }
 
-void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable, float minRating) {
-    SortedLinkedList<Movie*> sortedMovies([](Movie* a, Movie* b) {
-        return a->getAverageRating() > b->getAverageRating(); // Descending order of rating
-        });
-
-    List<KeyValue<int, Movie>> movies = movieTable.getAllItemsWithKeys();
-
-    for (int i = 0; i < movies.getLength(); i++) {
-        Movie* movie = movies.get(i).value;
-        if (movie->getAverageRating() >= minRating) {
-            sortedMovies.add(movie);
-        }
-    }
-
-    if (sortedMovies.getSize() > 0) {
-        cout << left << setw(35) << "Movie Title" << setw(10) << "Rating" << endl;
-        cout << string(45, '-') << endl;
-
-        sortedMovies.print([](const Movie* movie) {
-            cout << left << setw(35) << movie->getTitle()
-                << right << setw(4) << fixed << setprecision(1) << movie->getAverageRating() << endl;
-            });
-    }
-    else {
-        cout << "No movies found with a rating of at least " << minRating << "." << endl;
-    }
-}
-
-void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable, float minRating) {
-    // Create a sorted linked list for actors sorted by rating in descending order
-    SortedLinkedList<Actor*> sortedActors([](Actor* a, Actor* b) {
-        return a->getAverageRating() > b->getAverageRating(); // Descending order of average rating
-        });
-
-    // Retrieve all actors from the dictionary
-    List<KeyValue<int, Actor>> actors = actorTable.getAllItemsWithKeys();
-
-    // Filter actors by minimum rating and add them to the sorted list
-    for (int i = 0; i < actors.getLength(); i++) {
-        Actor* actor = actors.get(i).value;
-        if (actor->getAverageRating() >= minRating) {
-            sortedActors.add(actor); // Add actor to sorted list if it meets the criteria
-        }
-    }
-
-    // Display the sorted actors
-    if (sortedActors.getSize() > 0) {
-        cout << left << setw(25) << "Actor Name" << setw(10) << "Rating" << endl;
-        cout << string(35, '-') << endl;
-
-        sortedActors.print([](const Actor* actor) {
-            cout << left << setw(25) << actor->getName()
-                << right << setw(4) << fixed << setprecision(1) << actor->getAverageRating() << endl;
-            });
-    }
-    else {
-        cout << "No actors found with a rating of at least " << minRating << "." << endl;
-    }
-}
-
 
 // HELPER FUNCTIONS
 
@@ -1098,16 +895,6 @@ int generateUniqueID(const Dictionary<T>& dictionary) {
     } while (dictionary.get(id) != nullptr); // Check if ID already exists in the dictionary
 
     return id;
-}
-
-string normalizeString(const string& str) {
-    if (str.empty()) {
-        return ""; // Handle empty string safely
-    }
-    string result = str;
-    result.erase(remove(result.begin(), result.end(), ' '), result.end());
-    transform(result.begin(), result.end(), result.begin(), ::tolower);
-    return result;
 }
 
 
