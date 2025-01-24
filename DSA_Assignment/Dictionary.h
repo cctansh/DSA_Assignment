@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <iomanip>
 #include "List.h"
 #include "KeyValue.h"
 #include<string>
@@ -200,7 +201,7 @@ void Dictionary<ValueType>::print() {
         Node* current = items[i];
         while (current) {
             if (current->item) {
-                cout << current->key << ". ";
+                cout << setw(6) << left << current->key << ". ";
                 current->item->print();
             }
             
@@ -225,34 +226,3 @@ bool Dictionary<ValueType>::replace(const KeyType& key, ValueType* newItem) {
     }
     return false; // Key not found
 }
-
-/*
-template <>
-void Dictionary<Actor>::getActorsByAge(int x, int y, SortedLinkedList& list, int currentYear) {
-    for (int i = 0; i < MAX_SIZE; ++i) {
-        Node* current = items[i];
-        while (current != nullptr) {
-            Actor* actor = static_cast<Actor*>(current->item);
-            int age = currentYear - actor->getBirthYear();
-            if (age >= x && age <= y) {
-                list.add(actor);  // Add to the sorted list
-            }
-            current = current->next;
-        }
-    }
-}
-
-template <>
-void Dictionary<Movie>::getMoviesWithinYearRange(int yearThreshold, SortedLinkedList& sortedList) {
-    for (int i = 0; i < MAX_SIZE; ++i) {
-        Node* current = items[i];
-        while (current != nullptr) {
-            Movie* movie = static_cast<Movie*>(current->item);
-            if (movie->getYear() >= yearThreshold) {  // Movie within the past threshold
-                sortedList.add(movie);  // Add to the sorted list
-            }
-            current = current->next;
-        }
-    }
-}
-*/

@@ -13,16 +13,20 @@
 #include <chrono>
 using namespace std;
 
+// parse base data
 void parseActors(const string& filename, Dictionary<Actor>& actorTable);
 void parseMovies(const string& filename, Dictionary<Movie>& movieTable);
 void parseCast(const string& filename, Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTable);
+void updateActorsCSV(const Dictionary<Actor>& actorTable);
+void updateMoviesCSV(const Dictionary<Movie>& movieTable);
+void updateCastCSV(const Dictionary<Movie>& movieTable);
+
 int getCurrentYear();
 void displayActorsByAge(const Dictionary<Actor>& actorTable, int x, int y);
 void displayMoviesByYear(const Dictionary<Movie>& movieTable, int currentYear);
 void displayMoviesForActor(const Dictionary<Actor>& actorTable, const string& actorName, const Dictionary<Movie>& movieTable);
 void displayActorsInMovie(const Dictionary<Movie>& movieTable, const string& movieName, const Dictionary<Actor>& actorTable);
-void updateActorsCSV(const Dictionary<Actor>& actorTable);
-void updateMoviesCSV(const Dictionary<Movie>& movieTable);
+
 template <typename T>
 int generateUniqueID(const Dictionary<T>& dictionary);
 void addActor(Dictionary<Actor>& actorTable);
@@ -30,7 +34,16 @@ void addMovie(Dictionary<Movie>& movieTable);
 void updateActor(Dictionary<Actor>& actorTable);
 void updateMovie(Dictionary<Movie>& movieTable);
 void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTable);
-void updateCastCSV(const Dictionary<Movie>& movieTable);
+
+// ratings
+void parseActorRatings(const string& filename, Dictionary<Actor>& actorTable);
+void parseMovieRatings(const string& filename, Dictionary<Movie>& movieTable);
+void displayActorRatings(Dictionary<Actor>& actorTable);
+void displayMovieRatings(Dictionary<Movie>& movieTable);
+void rateActor(Dictionary<Actor>& actorTable);
+void rateMovie(Dictionary<Movie>& movieTable);
+void updateMovieRatingsCSV(const Dictionary<Movie>& movieTable);
+void updateActorRatingsCSV(const Dictionary<Actor>& actorTable);
 
 int main()
 {
@@ -41,18 +54,24 @@ int main()
     parseActors("data/actors.csv", actorTable);
     parseMovies("data/movies.csv", movieTable);
     parseCast("data/cast.csv", actorTable, movieTable);
+    parseActorRatings("data/actorRatings.csv", actorTable);
+    parseMovieRatings("data/movieRatings.csv", movieTable);
 
     while (choice != 0) {
         cout << "--------------- MENU ---------------" << endl;
-        cout << "1. Add actor" << endl;
-        cout << "2. Add movie" << endl;
-        cout << "3. Add actor to movie" << endl;
-        cout << "4. Update actor" << endl;
-        cout << "5. Update movie" << endl;
-        cout << "6. Display actors within a specified age range, sorted in ascending order by age" << endl;
-        cout << "7. Display movies released within the past 3 years, sorted in ascending order by release year" << endl;
-        cout << "8. Display all movies an actor has starred in, sorted in alphabetical order" << endl;
-        cout << "9. Display all actors in a particular movie, sorted in alphabetical order" << endl;
+        cout << "1.  Add actor" << endl;
+        cout << "2.  Add movie" << endl;
+        cout << "3.  Add actor to movie" << endl;
+        cout << "4.  Update actor" << endl;
+        cout << "5.  Update movie" << endl;
+        cout << "6.  Display actors within a specified age range, sorted in ascending order by age" << endl;
+        cout << "7.  Display movies released within the past 3 years, sorted in ascending order by release year" << endl;
+        cout << "8.  Display all movies an actor has starred in, sorted in alphabetical order" << endl;
+        cout << "9.  Display all actors in a particular movie, sorted in alphabetical order" << endl;
+        cout << "10. Display all ratings for an actor" << endl;
+        cout << "11. Display all ratings for a movie" << endl;
+        cout << "12. Rate an actor" << endl;
+        cout << "13. Rate a movie" << endl;
         cout << "0. Exit" << endl << endl;
         cout << "Enter your choice: ";
         cin >> choice;
@@ -135,6 +154,22 @@ int main()
 			getline(cin, movieName);
 			displayActorsInMovie(movieTable, movieName, actorTable);
         }
+        else if (choice == 10) {
+            cout << "------ DISPLAY ACTOR RATINGS ------" << endl;
+            displayActorRatings(actorTable);
+        }
+        else if (choice == 11) {
+            cout << "------ DISPLAY MOVIE RATINGS ------" << endl;
+            displayMovieRatings(movieTable);
+        }
+        else if (choice == 12) {
+            cout << "----------- RATE ACTOR -----------" << endl;
+            rateActor(actorTable);
+        }
+        else if (choice == 13) {
+            cout << "----------- RATE MOVIE -----------" << endl;
+            rateMovie(movieTable);
+        }
         else {
             cout << "Invalid choice. Please try again." << endl;
         }
@@ -144,6 +179,112 @@ int main()
     return 0;
 }
 
+// a
+void addActor(Dictionary<Actor>& actorTable) {
+    int birthYear;
+    string name;
+
+    // Generate a unique ID
+    int id = generateUniqueID(actorTable);
+    cout << "Generated actor ID: " << id << endl;
+
+    // Input actor name
+    cout << "Enter actor name (or 0 to exit): ";
+    cin.ignore(); // Clear any leftover newline from previous input
+    getline(cin, name);
+
+    if (name == "0") return;
+
+    // Input actor birth year
+    while (true) {
+        cout << "Enter actor birth year (or 0 to exit): ";
+        cin >> birthYear;
+
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+            cout << endl << "Invalid input. Please enter a valid birth year." << endl << endl;
+            continue;
+        }
+
+        if (birthYear == 0) return;
+
+        if (birthYear >= 1700 && birthYear <= 2025) {
+            break; // Valid year
+        }
+        else {
+            cout << endl << "Please enter a birth year between 1700 and 2025." << endl << endl;
+        }
+    }
+
+    Actor* actor = new Actor(name, birthYear);
+    if (actorTable.add(id, actor)) {
+        cout << endl << "Actor added successfully." << endl;
+        updateActorsCSV(actorTable);
+    }
+    else {
+        cout << "Actor with this ID already exists." << endl;
+        delete actor;
+    }
+}
+
+// b
+void addMovie(Dictionary<Movie>& movieTable) {
+    int year;
+    string title, plot;
+
+    // Generate a unique ID
+    int id = generateUniqueID(movieTable);
+    cout << "Generated movie ID: " << id << endl;
+
+    // Input movie title
+    cout << "Enter movie title (or 0 to exit): ";
+    cin.ignore(); // Clear leftover newline from previous input
+    getline(cin, title);
+    if (title == "0") return;
+
+    // Input movie plot
+    cout << "Enter movie plot (or 0 to exit): ";
+    getline(cin, plot);
+    if (plot == "0") return;
+
+    // Input movie release year
+    while (true) {
+        cout << "Enter movie release year (or 0 to exit): ";
+        cin >> year;
+
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear(); // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+            cout << endl << "Invalid input. Please enter a valid release year." << endl << endl;
+            continue;
+        }
+
+        if (year == 0) return;
+
+        if (year >= 1800 && year <= 2025) {
+            break; // Valid year
+        }
+        else {
+            cout << endl << "Please enter a release year between 1800 and 2025." << endl << endl;
+        }
+    }
+
+    // Add the movie to the dictionary
+    Movie* movie = new Movie(title, plot, year);
+    if (movieTable.add(id, movie)) {
+        cout << endl << "Movie added successfully." << endl;
+        updateMoviesCSV(movieTable);
+    }
+    else {
+        cout << "Movie with this ID already exists." << endl;
+        delete movie; // Clean up memory if adding fails
+    }
+}
+
+// c
 void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTable) {
     int movieID, actorID;
     Movie* movie = nullptr;
@@ -215,6 +356,7 @@ void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTabl
     cout << endl << "Actor " << actor->getName() << " has been added to the movie " << movie->getTitle() << "." << endl;
 }
 
+// d
 void updateActor(Dictionary<Actor>& actorTable) {
     int id;
     int choice = -1;
@@ -243,6 +385,7 @@ void updateActor(Dictionary<Actor>& actorTable) {
         Actor* actor = actorTable.get(id);
 
         if (actor != nullptr) {
+            choice = -1;
             while (choice != 0) {
                 actor->print();
                 cout << "1. Name" << endl << "2. Birth Year" << endl << "0. Return to actor select" << endl << endl;
@@ -308,9 +451,11 @@ void updateActor(Dictionary<Actor>& actorTable) {
     }
 }
 
+// d
 void updateMovie(Dictionary<Movie>& movieTable) {
     int id;
     int choice = -1;
+    Movie* movie;
 
     while (true) {
         id = -1;
@@ -333,11 +478,12 @@ void updateMovie(Dictionary<Movie>& movieTable) {
 
         cout << endl;
 
-        Movie* movie = movieTable.get(id);
+        movie = movieTable.get(id);
 
         if (movie != nullptr) {
+            choice = -1;
             while (choice != 0) {
-                movie->print();
+                movie->printFullDetails();
                 cout << "1. Title" << endl << "2. Plot" << endl << "3. Release Year" << endl << "0. Return to movie select" << endl << endl;
                 cout << "Select which to update: ";
                 cin >> choice;
@@ -409,13 +555,6 @@ void updateMovie(Dictionary<Movie>& movieTable) {
             cout << "Invalid ID. Please try again." << endl;
         }
     }
-}
-
-int getCurrentYear() { // current year to calc how old the actor is
-    time_t t = time(nullptr);
-    tm now;
-    localtime_s(&now, &t);
-    return now.tm_year + 1900;
 }
 
 // e)
@@ -538,96 +677,212 @@ void displayActorsInMovie(const Dictionary<Movie>& movieTable, const string& mov
     sortedList.print(); // Print sorted actor names
 }
 
-void updateActorsCSV(const Dictionary<Actor>& actorTable) {
-    ofstream file("data/actors.csv");  // Open the file in overwrite mode
-    if (file.is_open()) {
-        // Write the header (optional, if your CSV needs one)
-        file << "id,name,birth\n";
 
-        // Get all the actors with their keys (actor IDs)
-        List<KeyValue<int, Actor>> allActors = actorTable.getAllItemsWithKeys();
+// ADVANCED
 
-        // Iterate over all actors and write their details to the CSV
-        for (int i = 0; i < allActors.getLength(); ++i) {
-            KeyValue<int, Actor> pair = allActors.get(i);  // Get each key-value pair
-            int actorID = pair.key;  // Actor ID (key)
-            Actor* actor = pair.value;  // Actor object (value)
+void displayActorRatings(Dictionary<Actor>& actorTable) {
+    int id;
 
-            // Write the actor details to the CSV
-            file << actorID << ","  // Actor ID
-                << "\"" << actor->getName() << "\"" << ","  // Actor name (quoted)
-                << actor->getBirthYear() << "\n";  // Actor birth year
+    while (true) {
+        id = -1;
+        cout << endl;
+        cout << "ACTOR LIST" << endl << "----------" << endl;
+        actorTable.print();
+        cout << "0. Return to menu" << endl << endl;
+        cout << "Select actor (Enter actor ID): ";
+        cin >> id;
+
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << endl << "Invalid ID. Please try again." << endl;
+            continue;
         }
 
-        file.close();
-    }
-    else {
-        cerr << "Failed to open actors.csv for writing.\n";
+        if (id == 0) return;
+
+        cout << endl;
+
+        Actor* actor = actorTable.get(id);
+
+        if (actor != nullptr) {
+            cout << actor->getName() << endl;
+            actor->displayRatings();
+            cout << endl;
+        }
+        else {
+            cout << "Invalid ID. Please try again." << endl;
+        }
     }
 }
 
-void updateMoviesCSV(const Dictionary<Movie>& movieTable) {
-    ofstream file("data/movies.csv");  // Open the file in overwrite mode
-    if (file.is_open()) {
-        // Write the header (optional, if your CSV needs one)
-        file << "id,title,plot,year\n";
+void displayMovieRatings(Dictionary<Movie>& movieTable) {
+    int id;
 
-        // Get all the actors with their keys (actor IDs)
-        List<KeyValue<int, Movie>> allMovies = movieTable.getAllItemsWithKeys();
+    while (true) {
+        id = -1;
+        cout << endl;
+        cout << "MOVIE LIST" << endl << "----------" << endl;
+        movieTable.print();
+        cout << "0. Return to menu" << endl << endl;
+        cout << "Select movie (Enter movie ID): ";
+        cin >> id;
 
-        // Iterate over all actors and write their details to the CSV
-        for (int i = 0; i < allMovies.getLength(); ++i) {
-            KeyValue<int, Movie> pair = allMovies.get(i);  // Get each key-value pair
-            int movieID = pair.key;  // Actor ID (key)
-            Movie* movie = pair.value;  // Actor object (value)
-
-            // Write the actor details to the CSV
-            file << movieID << ","  // Actor ID
-                << movie->getTitle() << ","  
-                << movie->getPlot() << ","
-                << movie->getYear() << "\n";  
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << endl << "Invalid ID. Please try again." << endl;
+            continue;
         }
 
-        file.close();
-    }
-    else {
-        cerr << "Failed to open movies.csv for writing.\n";
+        if (id == 0) return;
+
+        cout << endl;
+
+        Movie* movie = movieTable.get(id);
+
+        if (movie != nullptr) {
+            cout << movie->getTitle() << endl;
+            movie->displayRatings();
+            cout << endl;
+        }
+        else {
+            cout << "Invalid ID. Please try again." << endl;
+        }
     }
 }
 
-void updateCastCSV(const Dictionary<Movie>& movieTable) {
-    ofstream file("data/cast.csv");  // Open the file in overwrite mode
-    if (file.is_open()) {
-        // Write the header (optional, if your CSV needs one)
-        file << "person_id,movie_id\n";
+void rateActor(Dictionary<Actor>& actorTable) {
+    int id;
 
-        // Get all the movies with their keys (movie IDs)
-        List<KeyValue<int, Movie>> allMovies = movieTable.getAllItemsWithKeys();
+    while (true) {
+        id = -1;
+        cout << endl;
+        cout << "ACTOR LIST" << endl << "----------" << endl;
+        actorTable.print();
+        cout << "0. Return to menu" << endl << endl;
+        cout << "Select actor (Enter actor ID): ";
+        cin >> id;
 
-        // Iterate over all movies and their associated actors
-        for (int i = 0; i < allMovies.getLength(); ++i) {
-            KeyValue<int, Movie> pair = allMovies.get(i);  // Get each key-value pair
-            int movieID = pair.key;  // Movie ID (key)
-            Movie* movie = pair.value;  // Movie object (value)
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << endl << "Invalid ID. Please try again." << endl;
+            continue;
+        }
 
-            // Get the list of actor IDs associated with the movie
-            const List<int>& actorIDs = movie->getActors();
+        if (id == 0) return;
 
-            // Write each actor-movie relationship to the CSV
-            for (int j = 0; j < actorIDs.getLength(); ++j) {
-                int actorID = actorIDs.get(j);
-                file << actorID << "," << movieID << "\n";  // Write actor ID and movie ID
+        cout << endl;
+
+        Actor* actor = actorTable.get(id);
+
+        if (actor != nullptr) {
+            float rating;
+            while (true) {
+                rating = -1;
+                cout << "Enter a rating between 1-5 (or 0 to return to actor select): ";
+                cin >> rating;
+
+                if (cin.fail()) {
+                    // Handle invalid input
+                    cin.clear();               // Clear error flag
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << endl << "Invalid rating. Please try again." << endl << endl;
+                    continue;
+                }
+
+                if (rating == 0) break;
+
+                if (rating < 1 || rating > 5) {
+                    cout << endl << "Invalid rating. Please enter a number between 1-5." << endl << endl;
+                    continue;
+                }
+
+                actor->addRating(rating);
+                updateActorRatingsCSV(actorTable);
+                return;
             }
         }
-
-        file.close();
-    }
-    else {
-        cerr << "Failed to open cast.csv for writing.\n";
+        else {
+            cout << "Invalid ID. Please try again." << endl;
+        }
     }
 }
 
-// Function to generate a unique ID
+void rateMovie(Dictionary<Movie>& movieTable) {
+    int id;
+
+    while (true) {
+        id = -1;
+        cout << endl;
+        cout << "MOVIE LIST" << endl << "----------" << endl;
+        movieTable.print();
+        cout << "0. Return to menu" << endl << endl;
+        cout << "Select movie (Enter movie ID): ";
+        cin >> id;
+
+        if (cin.fail()) {
+            // Handle invalid input
+            cin.clear();               // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << endl << "Invalid ID. Please try again." << endl;
+            continue;
+        }
+
+        if (id == 0) return;
+
+        cout << endl;
+
+        Movie* movie = movieTable.get(id);
+
+        if (movie != nullptr) {
+            float rating;
+            while (true) {
+                rating = -1;
+                cout << "Enter a rating between 1-5 (or 0 to return to movie select): ";
+                cin >> rating;
+
+                if (cin.fail()) {
+                    // Handle invalid input
+                    cin.clear();               // Clear error flag
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << endl << "Invalid rating. Please try again." << endl << endl;
+                    continue;
+                }
+
+                if (rating == 0) break;
+
+                if (rating < 1 || rating > 5) {
+                    cout << endl << "Invalid rating. Please enter a number between 1-5." << endl << endl;
+                    continue;
+                }
+
+                movie->addRating(rating);
+                updateMovieRatingsCSV(movieTable);
+                return;
+            }
+        }
+        else {
+
+            cout << "Invalid ID. Please try again." << endl;
+        }
+    }
+}
+
+
+// HELPER FUNCTIONS
+
+int getCurrentYear() { // current year to calc how old the actor is
+    time_t t = time(nullptr);
+    tm now;
+    localtime_s(&now, &t);
+    return now.tm_year + 1900;
+}
+
 template <typename T>
 int generateUniqueID(const Dictionary<T>& dictionary) {
     random_device rd;  // Seed for random number generation
@@ -642,108 +897,8 @@ int generateUniqueID(const Dictionary<T>& dictionary) {
     return id;
 }
 
-void addActor(Dictionary<Actor>& actorTable) {
-    int birthYear;
-    string name;
 
-    // Generate a unique ID
-    int id = generateUniqueID(actorTable);
-    cout << "Generated actor ID: " << id << endl;
-
-    // Input actor name
-    cout << "Enter actor name (or 0 to exit): ";
-    cin.ignore(); // Clear any leftover newline from previous input
-    getline(cin, name);
-
-    if (name == "0") return;
-
-    // Input actor birth year
-    while (true) {
-        cout << "Enter actor birth year (or 0 to exit): ";
-        cin >> birthYear;
-
-        if (cin.fail()) {
-            // Handle invalid input
-            cin.clear();               // Clear error flag
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
-            cout << endl << "Invalid input. Please enter a valid birth year." << endl << endl;
-            continue;
-        }
-
-        if (birthYear == 0) return;
-
-        if (birthYear >= 1700 && birthYear <= 2025) {
-            break; // Valid year
-        }
-        else {
-            cout << endl << "Please enter a birth year between 1700 and 2025." << endl << endl;
-        }
-    }
-
-    Actor* actor = new Actor(name, birthYear);
-    if (actorTable.add(id, actor)) {
-        cout << endl << "Actor added successfully." << endl;
-        updateActorsCSV(actorTable);
-    }
-    else {
-        cout << "Actor with this ID already exists." << endl;
-        delete actor;
-    }
-}
-
-void addMovie(Dictionary<Movie>& movieTable) {
-    int year;
-    string title, plot;
-
-    // Generate a unique ID
-    int id = generateUniqueID(movieTable);
-    cout << "Generated movie ID: " << id << endl;
-
-    // Input movie title
-    cout << "Enter movie title (or 0 to exit): ";
-    cin.ignore(); // Clear leftover newline from previous input
-    getline(cin, title);
-    if (title == "0") return;
-
-    // Input movie plot
-    cout << "Enter movie plot (or 0 to exit): ";
-    getline(cin, plot);
-    if (plot == "0") return;
-
-    // Input movie release year
-    while (true) {
-        cout << "Enter movie release year (or 0 to exit): ";
-        cin >> year;
-
-        if (cin.fail()) {
-            // Handle invalid input
-            cin.clear(); // Clear error flag
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
-            cout << endl << "Invalid input. Please enter a valid release year." << endl << endl;
-            continue;
-        }
-
-        if (year == 0) return;
-
-        if (year >= 1800 && year <= 2025) {
-            break; // Valid year
-        }
-        else {
-            cout << endl << "Please enter a release year between 1800 and 2025." << endl << endl;
-        }
-    }
-
-    // Add the movie to the dictionary
-    Movie* movie = new Movie(title, plot, year);
-    if (movieTable.add(id, movie)) {
-        cout << endl << "Movie added successfully." << endl;
-        updateMoviesCSV(movieTable);
-    }
-    else {
-        cout << "Movie with this ID already exists." << endl;
-        delete movie; // Clean up memory if adding fails
-    }
-}
+// PARSING & UPDATING CSV
 
 // Parse actors and store them in the dictionary
 void parseActors(const string& filename, Dictionary<Actor>& actorTable) {
@@ -846,4 +1001,199 @@ void parseCast(const string& filename, Dictionary<Actor>& actorTable, Dictionary
         }
     }
     file.close();
+}
+
+// Parse actor ratings
+void parseActorRatings(const string& filename, Dictionary<Actor>& actorTable) {
+    ifstream file(filename);
+    string line;
+    while (getline(file, line)) {
+        stringstream ss(line);
+        int actorID;
+        float rating;
+        ss >> actorID;
+        ss.ignore();
+        ss >> rating;
+
+        Actor* actor = actorTable.get(actorID);
+
+        if (actor) {
+            actor->addRating(rating);
+        }
+    }
+    file.close();
+}
+
+// Parse movie ratings
+void parseMovieRatings(const string& filename, Dictionary<Movie>& movieTable) {
+    ifstream file(filename);
+    string line;
+    while (getline(file, line)) {
+        stringstream ss(line);
+        int movieID;
+        float rating;
+        ss >> movieID;
+        ss.ignore();
+        ss >> rating;
+
+        Movie* movie = movieTable.get(movieID);
+
+        if (movie) {
+            movie->addRating(rating);
+        }
+    }
+    file.close();
+}
+
+void updateActorsCSV(const Dictionary<Actor>& actorTable) {
+    ofstream file("data/actors.csv");  // Open the file in overwrite mode
+    if (file.is_open()) {
+        // Write the header (optional, if your CSV needs one)
+        file << "id,name,birth\n";
+
+        // Get all the actors with their keys (actor IDs)
+        List<KeyValue<int, Actor>> allActors = actorTable.getAllItemsWithKeys();
+
+        // Iterate over all actors and write their details to the CSV
+        for (int i = 0; i < allActors.getLength(); ++i) {
+            KeyValue<int, Actor> pair = allActors.get(i);  // Get each key-value pair
+            int actorID = pair.key;  // Actor ID (key)
+            Actor* actor = pair.value;  // Actor object (value)
+
+            // Write the actor details to the CSV
+            file << actorID << ","  // Actor ID
+                << "\"" << actor->getName() << "\"" << ","  // Actor name (quoted)
+                << actor->getBirthYear() << "\n";  // Actor birth year
+        }
+
+        file.close();
+    }
+    else {
+        cerr << "Failed to open actors.csv for writing.\n";
+    }
+}
+
+void updateMoviesCSV(const Dictionary<Movie>& movieTable) {
+    ofstream file("data/movies.csv");  // Open the file in overwrite mode
+    if (file.is_open()) {
+        // Write the header (optional, if your CSV needs one)
+        file << "id,title,plot,year\n";
+
+        // Get all the actors with their keys (actor IDs)
+        List<KeyValue<int, Movie>> allMovies = movieTable.getAllItemsWithKeys();
+
+        // Iterate over all actors and write their details to the CSV
+        for (int i = 0; i < allMovies.getLength(); ++i) {
+            KeyValue<int, Movie> pair = allMovies.get(i);  // Get each key-value pair
+            int movieID = pair.key;  // Actor ID (key)
+            Movie* movie = pair.value;  // Actor object (value)
+
+            // Write the actor details to the CSV
+            file << movieID << ","  // Actor ID
+                << movie->getTitle() << ","
+                << movie->getPlot() << ","
+                << movie->getYear() << "\n";
+        }
+
+        file.close();
+    }
+    else {
+        cerr << "Failed to open movies.csv for writing.\n";
+    }
+}
+
+void updateCastCSV(const Dictionary<Movie>& movieTable) {
+    ofstream file("data/cast.csv");  // Open the file in overwrite mode
+    if (file.is_open()) {
+        // Write the header (optional, if your CSV needs one)
+        file << "person_id,movie_id\n";
+
+        // Get all the movies with their keys (movie IDs)
+        List<KeyValue<int, Movie>> allMovies = movieTable.getAllItemsWithKeys();
+
+        // Iterate over all movies and their associated actors
+        for (int i = 0; i < allMovies.getLength(); ++i) {
+            KeyValue<int, Movie> pair = allMovies.get(i);  // Get each key-value pair
+            int movieID = pair.key;  // Movie ID (key)
+            Movie* movie = pair.value;  // Movie object (value)
+
+            // Get the list of actor IDs associated with the movie
+            const List<int>& actorIDs = movie->getActors();
+
+            // Write each actor-movie relationship to the CSV
+            for (int j = 0; j < actorIDs.getLength(); ++j) {
+                int actorID = actorIDs.get(j);
+                file << actorID << "," << movieID << "\n";  // Write actor ID and movie ID
+            }
+        }
+
+        file.close();
+    }
+    else {
+        cerr << "Failed to open cast.csv for writing.\n";
+    }
+}
+
+void updateActorRatingsCSV(const Dictionary<Actor>& actorTable) {
+    ofstream file("data/actorRatings.csv");  // Open the file in overwrite mode
+    if (file.is_open()) {
+        // Write the header
+        file << "id,rating\n";
+
+        // Get all the movies with their keys (movie IDs)
+        List<KeyValue<int, Actor>> allActors = actorTable.getAllItemsWithKeys();
+
+        // Iterate over all movies and ratings
+        for (int i = 0; i < allActors.getLength(); ++i) {
+            KeyValue<int, Actor> pair = allActors.get(i);  // Get each key-value pair
+            int actorID = pair.key;  // Actor ID (key)
+            Actor* actor = pair.value;  // Actor object (value)
+
+            // Get the list of ratings associated with the movie
+            const List<float>& ratings = actor->getRatings();
+
+            // Write each movie-rating relationship to the CSV
+            for (int j = 0; j < ratings.getLength(); ++j) {
+                float rating = ratings.get(j);
+                file << actorID << "," << rating << "\n";  // Write movie ID and rating
+            }
+        }
+
+        file.close();
+    }
+    else {
+        cerr << "Failed to open actorRatings.csv for writing.\n";
+    }
+}
+
+void updateMovieRatingsCSV(const Dictionary<Movie>& movieTable) {
+    ofstream file("data/movieRatings.csv");  // Open the file in overwrite mode
+    if (file.is_open()) {
+        // Write the header
+        file << "id,rating\n";
+
+        // Get all the movies with their keys (movie IDs)
+        List<KeyValue<int, Movie>> allMovies = movieTable.getAllItemsWithKeys();
+
+        // Iterate over all movies and ratings
+        for (int i = 0; i < allMovies.getLength(); ++i) {
+            KeyValue<int, Movie> pair = allMovies.get(i);  // Get each key-value pair
+            int movieID = pair.key;  // Movie ID (key)
+            Movie* movie = pair.value;  // Movie object (value)
+
+            // Get the list of ratings associated with the movie
+            const List<float>& ratings = movie->getRatings();
+
+            // Write each movie-rating relationship to the CSV
+            for (int j = 0; j < ratings.getLength(); ++j) {
+                float rating = ratings.get(j);
+                file << movieID << "," << rating << "\n";  // Write movie ID and rating
+            }
+        }
+
+        file.close();
+    }
+    else {
+        cerr << "Failed to open movieRatings.csv for writing.\n";
+    }
 }
