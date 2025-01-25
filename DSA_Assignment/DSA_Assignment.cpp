@@ -1,4 +1,3 @@
-#include <unordered_set>
 #include <iostream>
 #include "Dictionary.h"
 #include "List.h"
@@ -736,8 +735,10 @@ void displayActorsInMovie(const Dictionary<Movie>& movieTable, const string& mov
 void displayKnownActors(const Dictionary<Actor>& actorTable, const string& actorName, const Dictionary<Movie>& movieTable) {
     Actor* actor = nullptr;
 
-    // Find the actor by name
+    // List of all actors
     List<KeyValue<int, Actor>> allActors = actorTable.getAllItemsWithKeys();
+
+    // Find the actor by name
     for (int i = 0; i < allActors.getLength(); i++) {
         if (normalizeString(allActors.get(i).value->getName()) == normalizeString(actorName)) {
             actor = allActors.get(i).value;
@@ -745,20 +746,48 @@ void displayKnownActors(const Dictionary<Actor>& actorTable, const string& actor
         }
     }
 
+    // If the actor is not found, suggest similar names
     if (!actor) {
-        cout << "Actor \"" << actorName << "\" not found!" << endl;
-        return;
+        List<string> suggestions;
+
+        // Check for similar actor names
+        for (int i = 0; i < allActors.getLength(); i++) {
+            const string& currentName = allActors.get(i).value->getName();
+            if (currentName.find(actorName) != string::npos || actorName.find(currentName) != string::npos) {
+                suggestions.add(currentName);
+            }
+        }
+
+        if (suggestions.isEmpty()) {
+            cout << "Actor \"" << actorName << "\" not found!" << endl;
+            return;
+        }
+        else {
+            cout << "Actor \"" << actorName << "\" not found. Did you mean:" << endl;
+            for (int i = 0; i < suggestions.getLength(); i++) {
+                cout << "- " << suggestions.get(i) << endl;
+            }
+            return;
+        }
     }
 
-    unordered_set<string> knownActorNames; // Store known actor names
-    unordered_set<int> visitedMovies;     // Keep track of visited movies to prevent duplicates
+    List<string> knownActorNames; // Stores unique direct co-actors
+    List<int> visitedMovies;     // Stores unique visited movie IDs
+
+    // Helper function to check for duplicates in a List
+    auto contains = [](const auto& list, const auto& value) -> bool {
+        for (int i = 0; i < list.getLength(); i++) {
+            if (list.get(i) == value) return true;
+        }
+        return false;
+        };
 
     // Direct co-actors (Level 1)
     const List<int>& movieIDs = actor->getMovies();
     for (int i = 0; i < movieIDs.getLength(); i++) {
         int movieID = movieIDs.get(i);
-        if (visitedMovies.find(movieID) == visitedMovies.end()) {
-            visitedMovies.insert(movieID);
+        if (!contains(visitedMovies, movieID)) {
+            visitedMovies.add(movieID);
 
             Movie* movie = movieTable.get(movieID);
             if (movie) {
@@ -767,7 +796,9 @@ void displayKnownActors(const Dictionary<Actor>& actorTable, const string& actor
                     int coActorID = coActorIDs.get(j);
                     Actor* coActor = actorTable.get(coActorID);
                     if (coActor && normalizeString(coActor->getName()) != normalizeString(actor->getName())) {
-                        knownActorNames.insert(coActor->getName());
+                        if (!contains(knownActorNames, coActor->getName())) {
+                            knownActorNames.add(coActor->getName());
+                        }
                     }
                 }
             }
@@ -775,33 +806,34 @@ void displayKnownActors(const Dictionary<Actor>& actorTable, const string& actor
     }
 
     // Indirect co-actors (Level 2)
-    unordered_set<string> secondLevelActorNames; // Prevent duplicates at level 2
-    for (const string& coActorName : knownActorNames) {
+    List<string> secondLevelActorNames;
+    for (int i = 0; i < knownActorNames.getLength(); i++) {
+        string coActorName = knownActorNames.get(i);
         Actor* coActor = nullptr;
 
-        // Find co-actor in actorTable by name
-        for (int i = 0; i < allActors.getLength(); i++) {
-            if (normalizeString(allActors.get(i).value->getName()) == normalizeString(coActorName)) {
-                coActor = allActors.get(i).value;
+        // Find coActor in the actorTable
+        for (int j = 0; j < allActors.getLength(); j++) {
+            if (normalizeString(allActors.get(j).value->getName()) == normalizeString(coActorName)) {
+                coActor = allActors.get(j).value;
                 break;
             }
         }
 
         if (coActor) {
             const List<int>& coActorMovies = coActor->getMovies();
-            for (int i = 0; i < coActorMovies.getLength(); i++) {
-                int movieID = coActorMovies.get(i);
-                if (visitedMovies.find(movieID) == visitedMovies.end()) {
-                    visitedMovies.insert(movieID);
+            for (int k = 0; k < coActorMovies.getLength(); k++) {
+                int movieID = coActorMovies.get(k);
+                if (!contains(visitedMovies, movieID)) {
+                    visitedMovies.add(movieID);
 
                     Movie* movie = movieTable.get(movieID);
                     if (movie) {
                         const List<int>& indirectActorIDs = movie->getActors();
-                        for (int j = 0; j < indirectActorIDs.getLength(); j++) {
-                            int indirectActorID = indirectActorIDs.get(j);
+                        for (int l = 0; l < indirectActorIDs.getLength(); l++) {
+                            int indirectActorID = indirectActorIDs.get(l);
                             Actor* indirectActor = actorTable.get(indirectActorID);
-                            if (indirectActor && knownActorNames.find(indirectActor->getName()) == knownActorNames.end()) {
-                                secondLevelActorNames.insert(indirectActor->getName());
+                            if (indirectActor && !contains(knownActorNames, indirectActor->getName()) && !contains(secondLevelActorNames, indirectActor->getName())) {
+                                secondLevelActorNames.add(indirectActor->getName());
                             }
                         }
                     }
@@ -812,11 +844,11 @@ void displayKnownActors(const Dictionary<Actor>& actorTable, const string& actor
 
     // Combine direct and indirect co-actors
     cout << "Actors known by \"" << actor->getName() << "\":" << endl;
-    for (const string& name : knownActorNames) {
-        cout << "- " << name << endl;
+    for (int i = 0; i < knownActorNames.getLength(); i++) {
+        cout << "- " << knownActorNames.get(i) << endl;
     }
-    for (const string& name : secondLevelActorNames) {
-        cout << "- " << name << endl;
+    for (int i = 0; i < secondLevelActorNames.getLength(); i++) {
+        cout << "- " << secondLevelActorNames.get(i) << endl;
     }
 }
 
