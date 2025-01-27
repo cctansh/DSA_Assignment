@@ -133,7 +133,6 @@
     <ClCompile Include="DSA_Assignment.cpp" />
     <ClCompile Include="List.cpp" />
     <ClCompile Include="Movie.cpp" />
-    <ClCompile Include="SortedLinkedList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />

@@ -636,13 +636,23 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
         }
     }
 
-    // Sort actors by age using a single recursive function
-    sortActorsByAge(actorsArr, 0, index - 1, getCurrentYear());
+    if (index == 0) {
+        // No actors found in the specified age range
+        cout << endl << "No actors found within the age range of " << x << " to " << y << "." << endl;
+    }
+    else {
+        // Sort actors by age using a single recursive function
+        sortActorsByAge(actorsArr, 0, index - 1, getCurrentYear());
 
-    // Display sorted actors
-    cout << "Actors between ages " << x << " and " << y << " (sorted by age):" << endl;
-    for (int i = 0; i < index; i++) {
-        cout << actorsArr[i]->getName() << " (Age: " << getCurrentYear() - actorsArr[i]->getBirthYear() << ")" << endl;
+        // Display sorted actors
+        cout << endl << left << setw(35) << "Actor Name"
+            << setw(15) << ("Age (" + to_string(x) + " - " + to_string(y) + ")") << endl;
+        cout << string(50, '-') << endl; // Adds a separator line
+        for (int i = 0; i < index; i++) {
+            cout << left << setw(35) << actorsArr[i]->getName()
+                << right << setw(2) << (getCurrentYear() - actorsArr[i]->getBirthYear())
+                << " Years Old" << endl;
+        }
     }
 
     delete[] actorsArr; // Free dynamically allocated memory
@@ -689,6 +699,7 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
         while (true) {
             cout << "Enter the current year (0 to exit): ";
             cin >> currentYear;
+			cout << endl;
 
             if (cin.fail()) {
                 cin.clear();
@@ -728,9 +739,12 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
             sortMoviesByYear(moviesArr, 0, index - 1);
 
             // Display sorted movies
-            cout << "Movies made within the past 3 years (sorted by year):" << endl;
+            cout << left << setw(35) << "Movie Title" << setw(10) << "Year" << endl;
+            cout << string(45, '-') << endl; // Line separator
             for (int i = 0; i < index; i++) {
-                cout << moviesArr[i]->getTitle() << " (" << moviesArr[i]->getYear() << ")" << endl;
+                // Print each movie in a formatted row
+                cout << left << setw(35) << moviesArr[i]->getTitle()
+                    << right << setw(4) << moviesArr[i]->getYear() << endl;
             }
         }
         else {
