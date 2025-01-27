@@ -28,4 +28,9 @@ public:
 	void displayRatings();
 	void print();
 	void printFullDetails();
+
+	// Sorting methods
+	static void insertionSortTitles(string arr[], int n);
+	static void mergeSortByYear(Movie* arr[], int left, int right);
+	static void sortMoviesByRatingDescending(Movie* arr[], int n);
 };

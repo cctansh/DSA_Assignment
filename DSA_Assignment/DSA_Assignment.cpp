@@ -555,40 +555,6 @@ void updateMovie(Dictionary<Movie>& movieTable) {
 }
 
 // e) merge sort
-void sortActorsByAge(Actor* arr[], int left, int right, int currentYear) {
-    if (left >= right) return;
-
-    int mid = left + (right - left) / 2;
-
-    // Recursive calls to sort left and right halves
-    sortActorsByAge(arr, left, mid, currentYear);
-    sortActorsByAge(arr, mid + 1, right, currentYear);
-
-    // Merge the sorted halves
-    int size = right - left + 1;
-    Actor** temp = new Actor * [size];
-    int i = left, j = mid + 1, k = 0;
-
-    while (i <= mid && j <= right) {
-        int ageLeft = currentYear - arr[i]->getBirthYear();
-        int ageRight = currentYear - arr[j]->getBirthYear();
-        if (ageLeft <= ageRight) {
-            temp[k++] = arr[i++];
-        }
-        else {
-            temp[k++] = arr[j++];
-        }
-    }
-
-    while (i <= mid) temp[k++] = arr[i++];
-    while (j <= right) temp[k++] = arr[j++];
-
-    for (int m = 0; m < size; m++) arr[left + m] = temp[m];
-
-    delete[] temp; // Free dynamically allocated memory
-}
-
-// e) merge sort
 void displayActorsByAge(const Dictionary<Actor>& actorTable) {
     int x, y;
 
@@ -637,12 +603,11 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
     }
 
     if (index == 0) {
-        // No actors found in the specified age range
         cout << endl << "No actors found within the age range of " << x << " to " << y << "." << endl;
     }
     else {
-        // Sort actors by age using a single recursive function
-        sortActorsByAge(actorsArr, 0, index - 1, getCurrentYear());
+        // Sort actors by age using the Actor class's static method
+        Actor::mergeSortByAge(actorsArr, 0, index - 1, getCurrentYear());
 
         // Display sorted actors
         cout << endl << left << setw(35) << "Actor Name"
@@ -658,39 +623,6 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
     delete[] actorsArr; // Free dynamically allocated memory
 }
 
-
-// f) merge sort
-void sortMoviesByYear(Movie* arr[], int left, int right) {
-    if (left >= right) return;
-
-    int mid = left + (right - left) / 2;
-
-    // Recursive calls to sort left and right halves
-    sortMoviesByYear(arr, left, mid);
-    sortMoviesByYear(arr, mid + 1, right);
-
-    // Merge the sorted halves
-    int size = right - left + 1;
-    Movie** temp = new Movie * [size];
-    int i = left, j = mid + 1, k = 0;
-
-    while (i <= mid && j <= right) {
-        if (arr[i]->getYear() <= arr[j]->getYear()) {
-            temp[k++] = arr[i++];
-        }
-        else {
-            temp[k++] = arr[j++];
-        }
-    }
-
-    while (i <= mid) temp[k++] = arr[i++];
-    while (j <= right) temp[k++] = arr[j++];
-
-    for (int m = 0; m < size; m++) arr[left + m] = temp[m];
-
-    delete[] temp; // Free dynamically allocated memory
-}
-
 // f) merge sort
 void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
     while (true) {
@@ -699,7 +631,6 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
         while (true) {
             cout << "Enter the current year (0 to exit): ";
             cin >> currentYear;
-			cout << endl;
 
             if (cin.fail()) {
                 cin.clear();
@@ -735,14 +666,13 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
         }
 
         if (index > 0) {
-            // Sort movies by year using a single recursive function
-            sortMoviesByYear(moviesArr, 0, index - 1);
+            // Sort movies by year using the Movie class's static method
+            Movie::mergeSortByYear(moviesArr, 0, index - 1);
 
             // Display sorted movies
             cout << left << setw(35) << "Movie Title" << setw(10) << "Year" << endl;
             cout << string(45, '-') << endl; // Line separator
             for (int i = 0; i < index; i++) {
-                // Print each movie in a formatted row
                 cout << left << setw(35) << moviesArr[i]->getTitle()
                     << right << setw(4) << moviesArr[i]->getYear() << endl;
             }
@@ -756,23 +686,6 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
     }
 }
 
-
-// g & h) insertion sort
-void insertionSort(string arr[], int n) {
-    for (int i = 1; i < n; i++) {
-        string key = arr[i];
-        int j = i - 1;
-
-        // Move elements of arr[0..i-1] that are greater than key
-        // to one position ahead of their current position
-        while (j >= 0 && arr[j] > key) {
-            arr[j + 1] = arr[j];
-            j--;
-        }
-        arr[j + 1] = key;
-    }
-}
-
 // g) insertion sort
 void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<Movie>& movieTable) {
     int actorID;
@@ -783,8 +696,7 @@ void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<M
         cout << "ACTOR LIST" << endl
             << "----------" << endl;
         actorTable.print(); // Print the list of all actors
-        cout << "0. Return to menu" << endl
-            << endl;
+        cout << "0. Return to menu" << endl << endl;
         cout << "Select actor (Enter actor ID): ";
         cin >> actorID;
 
@@ -816,19 +728,18 @@ void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<M
             }
         }
 
-        // Sort movie titles alphabetically using Insertion Sort
-        insertionSort(movieTitles, index);
+        // Sort movie titles alphabetically using the Movie class's static method
+        Movie::insertionSortTitles(movieTitles, index);
 
         // Display sorted movie titles
         cout << "Movies starred in by " << actor->getName() << " (Alphabetical Order):" << endl;
         for (int i = 0; i < index; i++) {
-            cout << movieTitles[i] << endl;
+            cout << "- " << movieTitles[i] << endl;
         }
 
         delete[] movieTitles; // Free dynamically allocated memory
     }
 }
-
 
 // h) insertion sort
 void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Actor>& actorTable) {
@@ -873,13 +784,13 @@ void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Ac
             }
         }
 
-        // Sort actor names alphabetically using Insertion Sort
-        insertionSort(actorNames, index);
+        // Sort actor names alphabetically using the Actor class's static method
+        Actor::insertionSortNames(actorNames, index);
 
         // Display sorted actor names
         cout << "Actors in the movie \"" << movie->getTitle() << "\" (Alphabetical Order):" << endl;
         for (int i = 0; i < index; i++) {
-            cout << actorNames[i] << endl;
+            cout << "- " << actorNames[i] << endl;
         }
 
         delete[] actorNames; // Free dynamically allocated memory
@@ -1200,20 +1111,6 @@ void rateMovie(Dictionary<Movie>& movieTable) {
 }
 
 // movies by minimum rating
-void insertionSortMovies(Movie* arr[], int n) {
-    for (int i = 1; i < n; i++) {
-        Movie* key = arr[i];
-        int j = i - 1;
-
-        // Sort in descending order of rating
-        while (j >= 0 && arr[j]->getAverageRating() < key->getAverageRating()) {
-            arr[j + 1] = arr[j];
-            j--;
-        }
-        arr[j + 1] = key;
-    }
-}
-
 void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
     while (true) {
         float minRating;
@@ -1253,8 +1150,8 @@ void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
         }
 
         if (index > 0) {
-            // Sort movies by rating using Insertion Sort
-            insertionSortMovies(movieArr, index);
+            // Sort movies by rating using the Movie class's static method
+            Movie::sortMoviesByRatingDescending(movieArr, index);
 
             // Display the movies
             cout << endl << left << setw(35) << "Movie Title" << setw(10) << "Rating" << endl;
@@ -1275,20 +1172,6 @@ void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
 }
 
 // actors by minimum rating
-void insertionSortActors(Actor* arr[], int n) {
-    for (int i = 1; i < n; i++) {
-        Actor* key = arr[i];
-        int j = i - 1;
-
-        // Sort in descending order of rating
-        while (j >= 0 && arr[j]->getAverageRating() < key->getAverageRating()) {
-            arr[j + 1] = arr[j];
-            j--;
-        }
-        arr[j + 1] = key;
-    }
-}
-
 void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable) {
     while (true) {
         float minRating;
@@ -1328,8 +1211,8 @@ void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable) {
         }
 
         if (index > 0) {
-            // Sort actors by rating using Insertion Sort
-            insertionSortActors(actorArr, index);
+            // Sort actors by rating using the Actor class's static method
+            Actor::sortActorsByRatingDescending(actorArr, index);
 
             // Display the sorted actors
             cout << endl << left << setw(25) << "Actor Name" << setw(10) << "Rating" << endl;

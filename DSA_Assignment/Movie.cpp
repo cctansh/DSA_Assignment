@@ -85,3 +85,64 @@ void Movie::printFullDetails() {
         << plot
         << endl;
 }
+
+// Sort movie titles alphabetically using Insertion Sort
+void Movie::insertionSortTitles(string arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        string key = arr[i];
+        int j = i - 1;
+
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+// Sort movies by year using Merge Sort
+void Movie::mergeSortByYear(Movie* arr[], int left, int right) {
+    if (left >= right) return;
+
+    int mid = left + (right - left) / 2;
+
+    // Recursive calls to sort the left and right halves
+    mergeSortByYear(arr, left, mid);
+    mergeSortByYear(arr, mid + 1, right);
+
+    // Merge the two sorted halves
+    int size = right - left + 1;
+    Movie** temp = new Movie * [size];
+    int i = left, j = mid + 1, k = 0;
+
+    while (i <= mid && j <= right) {
+        if (arr[i]->getYear() <= arr[j]->getYear()) {
+            temp[k++] = arr[i++];
+        }
+        else {
+            temp[k++] = arr[j++];
+        }
+    }
+
+    while (i <= mid) temp[k++] = arr[i++];
+    while (j <= right) temp[k++] = arr[j++];
+
+    for (int m = 0; m < size; m++) arr[left + m] = temp[m];
+
+    delete[] temp; // Free dynamically allocated memory
+}
+
+// Sort movies by rating in descending order
+void Movie::sortMoviesByRatingDescending(Movie* arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        Movie* key = arr[i];
+        int j = i - 1;
+
+        // Sort by descending order of rating
+        while (j >= 0 && arr[j]->getAverageRating() < key->getAverageRating()) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}

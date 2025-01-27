@@ -24,4 +24,9 @@ public:
 	float getAverageRating() const;
 	void displayRatings();
 	void print();
+
+	// Sorting methods
+	static void insertionSortNames(string arr[], int n);
+	static void mergeSortByAge(Actor* arr[], int left, int right, int currentYear);
+	static void sortActorsByRatingDescending(Actor* arr[], int n);
 };
