@@ -143,7 +143,6 @@
     <ClInclude Include="KeyValue.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Movie.h" />
-    <ClInclude Include="SortedLinkedList.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

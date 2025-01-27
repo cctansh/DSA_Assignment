@@ -5,7 +5,6 @@
 #include "Movie.h"
 #include "KeyValue.h"
 #include "BinarySearchTree.h"
-#include "SortedLinkedList.h"
 #include <memory>
 #include <fstream>
 #include <sstream>
@@ -555,7 +554,41 @@ void updateMovie(Dictionary<Movie>& movieTable) {
     }
 }
 
-// e) bst
+// e) merge sort
+void sortActorsByAge(Actor* arr[], int left, int right, int currentYear) {
+    if (left >= right) return;
+
+    int mid = left + (right - left) / 2;
+
+    // Recursive calls to sort left and right halves
+    sortActorsByAge(arr, left, mid, currentYear);
+    sortActorsByAge(arr, mid + 1, right, currentYear);
+
+    // Merge the sorted halves
+    int size = right - left + 1;
+    Actor** temp = new Actor * [size];
+    int i = left, j = mid + 1, k = 0;
+
+    while (i <= mid && j <= right) {
+        int ageLeft = currentYear - arr[i]->getBirthYear();
+        int ageRight = currentYear - arr[j]->getBirthYear();
+        if (ageLeft <= ageRight) {
+            temp[k++] = arr[i++];
+        }
+        else {
+            temp[k++] = arr[j++];
+        }
+    }
+
+    while (i <= mid) temp[k++] = arr[i++];
+    while (j <= right) temp[k++] = arr[j++];
+
+    for (int m = 0; m < size; m++) arr[left + m] = temp[m];
+
+    delete[] temp; // Free dynamically allocated memory
+}
+
+// e) merge sort
 void displayActorsByAge(const Dictionary<Actor>& actorTable) {
     int x, y;
 
@@ -563,10 +596,9 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
         cout << "Enter the minimum age: ";
         cin >> x;
 
-        // Validate input for minimum age
         if (cin.fail()) {
-            cin.clear(); // Clear the error flag
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore invalid input
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Invalid input. Please enter a valid integer for minimum age." << endl;
             continue;
         }
@@ -574,63 +606,99 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
         cout << "Enter the maximum age: ";
         cin >> y;
 
-        // Validate input for maximum age
         if (cin.fail()) {
-            cin.clear(); // Clear the error flag
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore invalid input
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Invalid input. Please enter a valid integer for maximum age." << endl;
             continue;
         }
 
-        // Check logical validity of the age range
         if (y <= x) {
             cout << "Invalid age range. Maximum age must be greater than minimum age. Please try again." << endl;
             continue;
         }
 
-        break; // Exit the loop if input is valid
+        break;
     }
-    // Create a binary search tree with a custom comparison function for age
-    BinarySearchTree<Actor*> bst([](Actor* a, Actor* b) {
-        int ageA = getCurrentYear() - a->getBirthYear();
-        int ageB = getCurrentYear() - b->getBirthYear();
-        return ageA < ageB; // Sort in ascending order of age
-        });
 
     List<KeyValue<int, Actor>> actors = actorTable.getAllItemsWithKeys();
-    for (int i = 0; i < actors.getLength(); i++) {
+    int count = actors.getLength();
+
+    // Dynamically allocate the array
+    Actor** actorsArr = new Actor * [count];
+    int index = 0;
+
+    for (int i = 0; i < count; i++) {
         Actor* actor = actors.get(i).value;
         int age = getCurrentYear() - actor->getBirthYear();
         if (age >= x && age <= y) {
-            bst.insert(actor); // Add to the BST if within age range
+            actorsArr[index++] = actor;
         }
     }
 
+    // Sort actors by age using a single recursive function
+    sortActorsByAge(actorsArr, 0, index - 1, getCurrentYear());
+
+    // Display sorted actors
     cout << "Actors between ages " << x << " and " << y << " (sorted by age):" << endl;
-    bst.inOrderTraversal([](Actor* actor) {
-        cout << actor->getName() << " (Age: " << getCurrentYear() - actor->getBirthYear() << ")" << endl;
-        });
+    for (int i = 0; i < index; i++) {
+        cout << actorsArr[i]->getName() << " (Age: " << getCurrentYear() - actorsArr[i]->getBirthYear() << ")" << endl;
+    }
+
+    delete[] actorsArr; // Free dynamically allocated memory
 }
 
-// f) bst
+
+// f) merge sort
+void sortMoviesByYear(Movie* arr[], int left, int right) {
+    if (left >= right) return;
+
+    int mid = left + (right - left) / 2;
+
+    // Recursive calls to sort left and right halves
+    sortMoviesByYear(arr, left, mid);
+    sortMoviesByYear(arr, mid + 1, right);
+
+    // Merge the sorted halves
+    int size = right - left + 1;
+    Movie** temp = new Movie * [size];
+    int i = left, j = mid + 1, k = 0;
+
+    while (i <= mid && j <= right) {
+        if (arr[i]->getYear() <= arr[j]->getYear()) {
+            temp[k++] = arr[i++];
+        }
+        else {
+            temp[k++] = arr[j++];
+        }
+    }
+
+    while (i <= mid) temp[k++] = arr[i++];
+    while (j <= right) temp[k++] = arr[j++];
+
+    for (int m = 0; m < size; m++) arr[left + m] = temp[m];
+
+    delete[] temp; // Free dynamically allocated memory
+}
+
+// f) merge sort
 void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
     while (true) {
         int currentYear;
 
-        // Input validation for the current year
         while (true) {
             cout << "Enter the current year (0 to exit): ";
             cin >> currentYear;
 
             if (cin.fail()) {
-                cin.clear(); // Clear the error flag
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore invalid input
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Invalid input. Please enter a valid year." << endl;
                 continue;
             }
 
             if (currentYear == 0) {
-                return; // Exit the function
+                return;
             }
 
             if (currentYear > getCurrentYear()) {
@@ -638,43 +706,60 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
                 continue;
             }
 
-            break; // Exit the loop if input is valid
+            break;
         }
 
-        // Create a binary search tree for movies
-        BinarySearchTree<Movie*> bst([](Movie* a, Movie* b) {
-            return a->getYear() < b->getYear(); // Sort in ascending order of year
-            });
-
-        // Retrieve all movies from the dictionary
         List<KeyValue<int, Movie>> movies = movieTable.getAllItemsWithKeys();
+        int count = movies.getLength();
 
-        // Add movies from the past 3 years (inclusive) to the BST
-        for (int i = 0; i < movies.getLength(); i++) {
+        // Dynamically allocate the array
+        Movie** moviesArr = new Movie * [count];
+        int index = 0;
+
+        for (int i = 0; i < count; i++) {
             Movie* movie = movies.get(i).value;
             if (movie->getYear() >= (currentYear - 3) && movie->getYear() <= currentYear) {
-                bst.insert(movie); // Add only movies within the past 3 years
+                moviesArr[index++] = movie;
             }
         }
 
-        // Print sorted movies
-        if (bst.getSize() > 0) {
+        if (index > 0) {
+            // Sort movies by year using a single recursive function
+            sortMoviesByYear(moviesArr, 0, index - 1);
+
+            // Display sorted movies
             cout << "Movies made within the past 3 years (sorted by year):" << endl;
-            bst.inOrderTraversal([](Movie* movie) {
-                cout << movie->getTitle() << " (" << movie->getYear() << ")" << endl;
-                });
+            for (int i = 0; i < index; i++) {
+                cout << moviesArr[i]->getTitle() << " (" << moviesArr[i]->getYear() << ")" << endl;
+            }
         }
         else {
             cout << "No movies found within the past 3 years." << endl;
         }
 
-        // Continue automatically without further prompts
+        delete[] moviesArr; // Free dynamically allocated memory
         cout << endl;
     }
 }
 
 
-// g) bst
+// g & h) insertion sort
+void insertionSort(string arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        string key = arr[i];
+        int j = i - 1;
+
+        // Move elements of arr[0..i-1] that are greater than key
+        // to one position ahead of their current position
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+// g) insertion sort
 void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<Movie>& movieTable) {
     int actorID;
 
@@ -704,26 +789,34 @@ void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<M
             continue;
         }
 
-        BinarySearchTree<string> bst([](const string& a, const string& b) {
-            return a < b; // Alphabetical order
-            });
-
         const List<int>& movieIDs = actor->getMovies();
-        for (int i = 0; i < movieIDs.getLength(); i++) {
+        int movieCount = movieIDs.getLength();
+        string* movieTitles = new string[movieCount]; // Dynamically allocate array
+        int index = 0;
+
+        // Collect movie titles
+        for (int i = 0; i < movieCount; i++) {
             Movie* movie = movieTable.get(movieIDs.get(i));
             if (movie) {
-                bst.insert(movie->getTitle());
+                movieTitles[index++] = movie->getTitle();
             }
         }
 
+        // Sort movie titles alphabetically using Insertion Sort
+        insertionSort(movieTitles, index);
+
+        // Display sorted movie titles
         cout << "Movies starred in by " << actor->getName() << " (Alphabetical Order):" << endl;
-        bst.inOrderTraversal([](const string& title) {
-            cout << title << endl;
-            });
+        for (int i = 0; i < index; i++) {
+            cout << movieTitles[i] << endl;
+        }
+
+        delete[] movieTitles; // Free dynamically allocated memory
     }
 }
 
-// h) bst
+
+// h) insertion sort
 void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Actor>& actorTable) {
     int movieID;
 
@@ -753,25 +846,31 @@ void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Ac
             continue;
         }
 
-        BinarySearchTree<string> bst([](const string& a, const string& b) {
-            return a < b; // Alphabetical order
-            });
-
         const List<int>& actorIDs = movie->getActors();
-        for (int i = 0; i < actorIDs.getLength(); i++) {
+        int actorCount = actorIDs.getLength();
+        string* actorNames = new string[actorCount]; // Dynamically allocate array
+        int index = 0;
+
+        // Collect actor names
+        for (int i = 0; i < actorCount; i++) {
             Actor* actor = actorTable.get(actorIDs.get(i));
             if (actor) {
-                bst.insert(actor->getName());
+                actorNames[index++] = actor->getName();
             }
         }
 
+        // Sort actor names alphabetically using Insertion Sort
+        insertionSort(actorNames, index);
+
+        // Display sorted actor names
         cout << "Actors in the movie \"" << movie->getTitle() << "\" (Alphabetical Order):" << endl;
-        bst.inOrderTraversal([](const string& name) {
-            cout << name << endl;
-            });
+        for (int i = 0; i < index; i++) {
+            cout << actorNames[i] << endl;
+        }
+
+        delete[] actorNames; // Free dynamically allocated memory
     }
 }
-
 
 // i) 
 void displayKnownActors(Dictionary<Actor>& actorTable, const Dictionary<Movie>& movieTable) {
@@ -1086,6 +1185,21 @@ void rateMovie(Dictionary<Movie>& movieTable) {
     }
 }
 
+// movies by minimum rating
+void insertionSortMovies(Movie* arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        Movie* key = arr[i];
+        int j = i - 1;
+
+        // Sort in descending order of rating
+        while (j >= 0 && arr[j]->getAverageRating() < key->getAverageRating()) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
 void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
     while (true) {
         float minRating;
@@ -1096,8 +1210,8 @@ void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
             cin >> minRating;
 
             if (cin.fail() || minRating < 0 || minRating > 5) {
-                cin.clear(); // Clear the error flag
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Invalid rating. Please enter a number between 1 and 5, or 0 to exit." << endl;
                 continue;
             }
@@ -1109,40 +1223,57 @@ void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
             break; // Exit the loop if input is valid
         }
 
-        // Create a sorted linked list to store movies above the given rating
-        SortedLinkedList<Movie*> sortedMovies([](Movie* a, Movie* b) {
-            return a->getAverageRating() > b->getAverageRating(); // Descending order of rating
-            });
-
         // Retrieve all movies from the dictionary
         List<KeyValue<int, Movie>> movies = movieTable.getAllItemsWithKeys();
+        int count = movies.getLength();
 
-        // Add movies with a rating greater than or equal to the specified minimum
-        for (int i = 0; i < movies.getLength(); i++) {
+        // Collect movies with a rating greater than or equal to the minimum rating
+        Movie** movieArr = new Movie * [count];
+        int index = 0;
+
+        for (int i = 0; i < count; i++) {
             Movie* movie = movies.get(i).value;
             if (movie->getAverageRating() >= minRating) {
-                sortedMovies.add(movie);
+                movieArr[index++] = movie;
             }
         }
 
-        // Display the movies
-        if (sortedMovies.getSize() > 0) {
+        if (index > 0) {
+            // Sort movies by rating using Insertion Sort
+            insertionSortMovies(movieArr, index);
+
+            // Display the movies
             cout << endl << left << setw(35) << "Movie Title" << setw(10) << "Rating" << endl;
             cout << string(45, '-') << endl;
 
-            sortedMovies.print([](const Movie* movie) {
-                cout << left << setw(35) << movie->getTitle()
-                    << right << setw(4) << fixed << setprecision(1) << movie->getAverageRating() << endl;
-                });
+            for (int i = 0; i < index; i++) {
+                cout << left << setw(35) << movieArr[i]->getTitle()
+                    << right << setw(4) << fixed << setprecision(1) << movieArr[i]->getAverageRating() << endl;
+            }
         }
         else {
             cout << "No movies found with a rating of at least " << minRating << "." << endl;
         }
 
+        delete[] movieArr; // Free the dynamically allocated array
         cout << endl;
     }
 }
 
+// actors by minimum rating
+void insertionSortActors(Actor* arr[], int n) {
+    for (int i = 1; i < n; i++) {
+        Actor* key = arr[i];
+        int j = i - 1;
+
+        // Sort in descending order of rating
+        while (j >= 0 && arr[j]->getAverageRating() < key->getAverageRating()) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
 
 void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable) {
     while (true) {
@@ -1154,8 +1285,8 @@ void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable) {
             cin >> minRating;
 
             if (cin.fail() || minRating < 0 || minRating > 5) {
-                cin.clear(); // Clear the error flag
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Invalid rating. Please enter a number between 1 and 5, or 0 to exit." << endl;
                 continue;
             }
@@ -1167,36 +1298,39 @@ void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable) {
             break; // Exit the loop if input is valid
         }
 
-        // Create a sorted linked list for actors sorted by rating in descending order
-        SortedLinkedList<Actor*> sortedActors([](Actor* a, Actor* b) {
-            return a->getAverageRating() > b->getAverageRating(); // Descending order of average rating
-            });
-
         // Retrieve all actors from the dictionary
         List<KeyValue<int, Actor>> actors = actorTable.getAllItemsWithKeys();
+        int count = actors.getLength();
 
-        // Filter actors by minimum rating and add them to the sorted list
-        for (int i = 0; i < actors.getLength(); i++) {
+        // Collect actors with a rating greater than or equal to the minimum rating
+        Actor** actorArr = new Actor * [count];
+        int index = 0;
+
+        for (int i = 0; i < count; i++) {
             Actor* actor = actors.get(i).value;
             if (actor->getAverageRating() >= minRating) {
-                sortedActors.add(actor); // Add actor to sorted list if it meets the criteria
+                actorArr[index++] = actor;
             }
         }
 
-        // Display the sorted actors
-        if (sortedActors.getSize() > 0) {
+        if (index > 0) {
+            // Sort actors by rating using Insertion Sort
+            insertionSortActors(actorArr, index);
+
+            // Display the sorted actors
             cout << endl << left << setw(25) << "Actor Name" << setw(10) << "Rating" << endl;
             cout << string(35, '-') << endl;
 
-            sortedActors.print([](const Actor* actor) {
-                cout << left << setw(25) << actor->getName()
-                    << right << setw(4) << fixed << setprecision(1) << actor->getAverageRating() << endl;
-                });
+            for (int i = 0; i < index; i++) {
+                cout << left << setw(25) << actorArr[i]->getName()
+                    << right << setw(4) << fixed << setprecision(1) << actorArr[i]->getAverageRating() << endl;
+            }
         }
         else {
             cout << "No actors found with a rating of at least " << minRating << "." << endl;
         }
 
+        delete[] actorArr; // Free the dynamically allocated array
         cout << endl;
     }
 }
