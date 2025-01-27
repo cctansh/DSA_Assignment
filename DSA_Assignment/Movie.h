@@ -28,6 +28,4 @@ public:
 	void displayRatings();
 	void print();
 	void printFullDetails();
-	bool operator<(const Movie& other) const;
-	friend ostream& operator<<(ostream& os, const Movie& movie);
 };

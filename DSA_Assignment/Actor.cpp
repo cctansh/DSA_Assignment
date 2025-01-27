@@ -67,15 +67,3 @@ void Actor::print() {
         << setw(4) << fixed << setprecision(1) << getAverageRating() << "/5"
         << endl;
 }
-
-bool Actor::operator<(const Actor& other) const {
-    if (birthYear == other.birthYear) {
-        return name < other.name; // Secondary sort by name
-    }
-    return birthYear < other.birthYear; // Primary sort by birth year
-}
-// Overload << operator
-ostream& operator<<(ostream& os, const Actor& actor) {
-    os << "Name: " << actor.name << ", Birth Year: " << actor.birthYear;
-    return os;
-}

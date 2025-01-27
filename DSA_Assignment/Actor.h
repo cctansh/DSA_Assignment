@@ -24,6 +24,4 @@ public:
 	float getAverageRating() const;
 	void displayRatings();
 	void print();
-	bool operator<(const Actor& other) const;
-	friend ostream& operator<<(ostream& os, const Actor& actor);
 };
