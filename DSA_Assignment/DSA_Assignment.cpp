@@ -1151,7 +1151,7 @@ void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
 
         if (index > 0) {
             // Sort movies by rating using the Movie class's static method
-            Movie::sortMoviesByRatingDescending(movieArr, index);
+            Movie::sortMoviesByRatingDescending(movieArr, 0, index - 1);
 
             // Display the movies
             cout << endl << left << setw(35) << "Movie Title" << setw(10) << "Rating" << endl;
@@ -1171,7 +1171,7 @@ void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
     }
 }
 
-// actors by minimum rating
+// Display actors by minimum rating
 void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable) {
     while (true) {
         float minRating;
@@ -1210,10 +1210,12 @@ void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable) {
             }
         }
 
-        if (index > 0) {
-            // Sort actors by rating using the Actor class's static method
-            Actor::sortActorsByRatingDescending(actorArr, index);
+        if (index > 1) {
+            // Sort actors by rating using Merge Sort
+            Actor::sortActorsByRatingDescending(actorArr, 0, index - 1);
+        }
 
+        if (index > 0) {
             // Display the sorted actors
             cout << endl << left << setw(25) << "Actor Name" << setw(10) << "Rating" << endl;
             cout << string(35, '-') << endl;

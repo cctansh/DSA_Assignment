@@ -32,5 +32,5 @@ public:
 	// Sorting methods
 	static void insertionSortTitles(string arr[], int n);
 	static void mergeSortByYear(Movie* arr[], int left, int right);
-	static void sortMoviesByRatingDescending(Movie* arr[], int n);
+	static void sortMoviesByRatingDescending(Movie* arr[], int left, int right);
 };

@@ -116,17 +116,34 @@ void Actor::mergeSortByAge(Actor* arr[], int left, int right, int currentYear) {
     delete[] temp; // Free dynamically allocated memory
 }
 
-// Sort actors by rating in descending order
-void Actor::sortActorsByRatingDescending(Actor* arr[], int n) {
-    for (int i = 1; i < n; i++) {
-        Actor* key = arr[i];
-        int j = i - 1;
+// Sort actors by rating in descending order using Merge Sort
+void Actor::sortActorsByRatingDescending(Actor* arr[], int left, int right) {
+    if (left >= right) return;
 
-        // Sort by descending order of rating
-        while (j >= 0 && arr[j]->getAverageRating() < key->getAverageRating()) {
-            arr[j + 1] = arr[j];
-            j--;
+    int mid = left + (right - left) / 2;
+
+    // Recursive calls to sort the left and right halves
+    sortActorsByRatingDescending(arr, left, mid);
+    sortActorsByRatingDescending(arr, mid + 1, right);
+
+    // Merge the two sorted halves
+    int size = right - left + 1;
+    Actor** temp = new Actor * [size];
+    int i = left, j = mid + 1, k = 0;
+
+    while (i <= mid && j <= right) {
+        if (arr[i]->getAverageRating() >= arr[j]->getAverageRating()) {
+            temp[k++] = arr[i++];
         }
-        arr[j + 1] = key;
+        else {
+            temp[k++] = arr[j++];
+        }
     }
+
+    while (i <= mid) temp[k++] = arr[i++];
+    while (j <= right) temp[k++] = arr[j++];
+
+    for (int m = 0; m < size; m++) arr[left + m] = temp[m];
+
+    delete[] temp; // Free dynamically allocated memory
 }
