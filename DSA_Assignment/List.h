@@ -60,7 +60,7 @@ List<T>::~List() {
 
 template <typename T>
 bool List<T>::add(const T& item) {
-    if (size >= 100) return false;
+    if (size >= 17000) return false;
 
     Node* newNode = new Node{ item, nullptr };
     if (!firstNode) {

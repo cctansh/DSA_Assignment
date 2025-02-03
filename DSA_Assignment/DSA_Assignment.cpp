@@ -216,14 +216,17 @@ void addActor(Dictionary<Actor>& actorTable) {
     }
 
     Actor* actor = new Actor(name, birthYear);
-    if (actorTable.add(id, actor)) {
-        cout << endl << "Actor added successfully." << endl;
-        updateActorsCSV(actorTable);
-    }
-    else {
+
+    bool success = actorTable.add(id, actor);
+
+    if (!success) {
         cout << "Actor with this ID already exists." << endl;
         delete actor;
+        return;
     }
+
+    cout << endl << "Actor added successfully." << endl;
+    updateActorsCSV(actorTable);
 }
 
 // b
@@ -288,8 +291,6 @@ void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTabl
     Actor* actor = nullptr;
 
     cout << endl;
-    cout << "MOVIE LIST" << endl << "----------" << endl;
-    movieTable.print();
 
     // Get movie
     while (true) {
@@ -318,8 +319,6 @@ void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTabl
 
     // Get actor
     cout << endl;
-    cout << "ACTOR LIST" << endl << "----------" << endl;
-    actorTable.print();
     while (true) {
         // Prompt user for actor ID
         cout << endl << "Enter the ID of the actor you want to add (or enter 0 to exit): ";
@@ -361,10 +360,7 @@ void updateActor(Dictionary<Actor>& actorTable) {
     while (true) {
         id = -1;
         cout << endl;
-        cout << "ACTOR LIST" << endl << "----------" << endl;
-        actorTable.print();
-        cout << "0. Return to menu" << endl << endl;
-        cout << "Select actor to update (Enter actor ID): ";
+        cout << "Select actor to update (Enter actor ID, or 0 to exit): ";
         cin >> id;
 
         if (cin.fail()) {
@@ -457,10 +453,7 @@ void updateMovie(Dictionary<Movie>& movieTable) {
     while (true) {
         id = -1;
         cout << endl;
-        cout << "MOVIE LIST" << endl << "----------" << endl;
-        movieTable.print();
-        cout << "0. Return to menu" << endl << endl;
-        cout << "Select movie to update (Enter movie ID): ";
+        cout << "Select movie to update (Enter movie ID, or 0 to exit): ";
         cin >> id;
 
         if (cin.fail()) {
@@ -693,11 +686,7 @@ void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<M
     while (true) {
         actorID = -1;
         cout << endl;
-        cout << "ACTOR LIST" << endl
-            << "----------" << endl;
-        actorTable.print(); // Print the list of all actors
-        cout << "0. Return to menu" << endl << endl;
-        cout << "Select actor (Enter actor ID): ";
+        cout << "Select actor (Enter actor ID, or 0 to exit): ";
         cin >> actorID;
 
         if (cin.fail()) {
@@ -748,12 +737,7 @@ void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Ac
     while (true) {
         movieID = -1;
         cout << endl;
-        cout << "MOVIE LIST" << endl
-            << "----------" << endl;
-        movieTable.print(); // Print the list of all movies
-        cout << "0. Return to menu" << endl
-            << endl;
-        cout << "Select movie (Enter movie ID): ";
+        cout << "Select movie (Enter movie ID, or 0 to exit): ";
         cin >> movieID;
 
         if (cin.fail()) {
@@ -804,10 +788,8 @@ void displayKnownActors(Dictionary<Actor>& actorTable, const Dictionary<Movie>& 
     while (true) {
         id = -1;
         cout << endl;
-        cout << "ACTOR LIST" << endl << "----------" << endl;
-        actorTable.print(); // Print the list of all actors with IDs
-        cout << "0. Return to menu" << endl << endl;
-        cout << "Select actor (Enter actor ID): ";
+
+        cout << "Select actor (Enter actor ID, or 0 to exit): ";
         cin >> id;
 
         if (cin.fail()) {
@@ -923,10 +905,8 @@ void displayActorRatings(Dictionary<Actor>& actorTable) {
     while (true) {
         id = -1;
         cout << endl;
-        cout << "ACTOR LIST" << endl << "----------" << endl;
-        actorTable.print();
-        cout << "0. Return to menu" << endl << endl;
-        cout << "Select actor (Enter actor ID): ";
+
+        cout << "Select actor (Enter actor ID, or 0 to exit): ";
         cin >> id;
 
         if (cin.fail()) {
@@ -960,10 +940,8 @@ void displayMovieRatings(Dictionary<Movie>& movieTable) {
     while (true) {
         id = -1;
         cout << endl;
-        cout << "MOVIE LIST" << endl << "----------" << endl;
-        movieTable.print();
-        cout << "0. Return to menu" << endl << endl;
-        cout << "Select movie (Enter movie ID): ";
+
+        cout << "Select movie (Enter movie ID, or 0 to exit): ";
         cin >> id;
 
         if (cin.fail()) {
@@ -997,10 +975,8 @@ void rateActor(Dictionary<Actor>& actorTable) {
     while (true) {
         id = -1;
         cout << endl;
-        cout << "ACTOR LIST" << endl << "----------" << endl;
-        actorTable.print();
-        cout << "0. Return to menu" << endl << endl;
-        cout << "Select actor (Enter actor ID): ";
+
+        cout << "Select actor (Enter actor ID, or 0 to exit): ";
         cin >> id;
 
         if (cin.fail()) {
@@ -1056,10 +1032,7 @@ void rateMovie(Dictionary<Movie>& movieTable) {
     while (true) {
         id = -1;
         cout << endl;
-        cout << "MOVIE LIST" << endl << "----------" << endl;
-        movieTable.print();
-        cout << "0. Return to menu" << endl << endl;
-        cout << "Select movie (Enter movie ID): ";
+        cout << "Select movie (Enter movie ID, or 0 to exit): ";
         cin >> id;
 
         if (cin.fail()) {

@@ -8,7 +8,7 @@
 #include "Actor.h"
 using namespace std;
 
-const int MAX_SIZE = 101;
+const int MAX_SIZE = 17000;
 
 typedef int KeyType;
 
