@@ -1,6 +1,14 @@
 #include "Movie.h"
-Movie::Movie(const string& title, const string& plot, int year)
-    : title(title), plot(plot), year(year) {}
+Movie::Movie(int id, const string& title, const string& plot, int year)
+    : id(id), title(title), plot(plot), year(year) {}
+
+void Movie::setId(int Id) {
+    id = Id;
+}
+
+int Movie::getId() const {
+    return id;
+}
 
 void Movie::setTitle(const string& newTitle) {
     title = newTitle;

@@ -7,12 +7,15 @@ using namespace std;
 class Actor
 {
 private:
+	int id;
 	string name;
 	int birthYear;
 	List<int> movies;
 	List<float> ratings;
 public:
-	Actor(const string&, int);
+	Actor(int, const string&, int);
+	void setId(int);
+	int getId() const;
 	void setName(const string&);
 	string getName() const;
 	void setBirthYear(int);

@@ -1,6 +1,14 @@
 #include "Actor.h"
 
-Actor::Actor(const string& name, int birthYear) : name(name), birthYear(birthYear) {}
+Actor::Actor(int id, const string& name, int birthYear) : id(id), name(name), birthYear(birthYear) {}
+
+void Actor::setId(int Id) {
+    id = Id;
+}
+
+int Actor::getId() const {
+    return id;
+}
 
 void Actor::setName(const string& newName) {
     name = newName;

@@ -7,13 +7,16 @@ using namespace std;
 class Movie
 {
 private:
+	int id;
 	string title;
 	string plot;
 	int year;
 	List<int> actors;
 	List<float> ratings;
 public:
-	Movie(const string&, const string&, int);
+	Movie(int, const string&, const string&, int);
+	void setId(int);
+	int getId() const;
 	void setTitle(const string&);
 	string getTitle() const;
 	void setPlot(const string&);
