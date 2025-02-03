@@ -100,6 +100,11 @@ int main()
 
         cout << endl;
         if (choice == 0) {
+            updateMoviesCSV(movieTable);
+            updateActorsCSV(actorTable);
+            updateCastCSV(movieTable);
+            updateMovieRatingsCSV(movieTable);
+            updateActorRatingsCSV(actorTable);
             break;
         }
         else if (choice == 1) {
@@ -229,7 +234,6 @@ void addActor(Dictionary<Actor>& actorTable) {
     }
 
     cout << endl << "Actor added successfully." << endl;
-    updateActorsCSV(actorTable);
 }
 
 // b
@@ -279,7 +283,6 @@ void addMovie(Dictionary<Movie>& movieTable) {
     Movie* movie = new Movie(id, title, plot, year);
     if (movieTable.add(id, movie)) {
         cout << endl << "Movie added successfully." << endl;
-        updateMoviesCSV(movieTable);
     }
     else {
         cout << "Movie with this ID already exists." << endl;
@@ -325,7 +328,6 @@ void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTabl
         // Add the actor to the movie and vice versa
         actor->addMovie(movie->getId());
         movie->addActor(actor->getId());
-        updateCastCSV(movieTable);
 
         cout << endl << "Actor " << actor->getName() << " has been added to the movie " << movie->getTitle() << "." << endl;
         return;
@@ -409,7 +411,6 @@ void updateActor(Dictionary<Actor>& actorTable) {
                     cout << endl << "Invalid choice. Please try again." << endl << endl;
                 }
             }
-            updateActorsCSV(actorTable);
         }
         else {
             cout << "Actor not found. Please try again." << endl;
@@ -505,7 +506,6 @@ void updateMovie(Dictionary<Movie>& movieTable) {
                     cout << endl << "Invalid choice. Please try again." << endl << endl;
                 }
             }
-            updateMoviesCSV(movieTable);
         }
         else {
             cout << "Movie not found. Please try again." << endl;
@@ -953,7 +953,6 @@ void rateActor(Dictionary<Actor>& actorTable) {
                 }
 
                 actor->addRating(rating);
-                updateActorRatingsCSV(actorTable);
                 return;
             }
         }
@@ -1001,7 +1000,6 @@ void rateMovie(Dictionary<Movie>& movieTable) {
                 }
 
                 movie->addRating(rating);
-                updateMovieRatingsCSV(movieTable);
                 return;
             }
         }
