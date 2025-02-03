@@ -131,6 +131,8 @@
     <ClCompile Include="BinarySearchTree.cpp" />
     <ClCompile Include="Dictionary.cpp" />
     <ClCompile Include="DSA_Assignment.cpp" />
+    <ClCompile Include="Graph.cpp" />
+    <ClCompile Include="Graph.h" />
     <ClCompile Include="List.cpp" />
     <ClCompile Include="Movie.cpp" />
   </ItemGroup>

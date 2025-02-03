@@ -33,6 +33,9 @@ public:
     // Get an item at a specific index
     const T& get(int index) const;
 
+    // Check if an item exists in the list
+    bool contains(const T& item) const;
+
     // Print all items
     void print() const;
 
@@ -113,6 +116,18 @@ const T& List<T>::get(int index) const {
     }
 
     return temp->item;
+}
+
+template <typename T>
+bool List<T>::contains(const T& item) const {
+    Node* temp = firstNode;
+    while (temp) {
+        if (temp->item == item) {
+            return true;  // Item found
+        }
+        temp = temp->next;
+    }
+    return false;  // Item not found
 }
 
 template <typename T>

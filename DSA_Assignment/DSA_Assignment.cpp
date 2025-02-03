@@ -5,6 +5,7 @@
 #include "Movie.h"
 #include "KeyValue.h"
 #include "BinarySearchTree.h"
+#include "Graph.h"
 #include <memory>
 #include <fstream>
 #include <sstream>
@@ -28,7 +29,7 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable);
 void displayMoviesByYear(const Dictionary<Movie>& movieTable);
 void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<Movie>& movieTable);
 void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Actor>& actorTable);
-void displayKnownActors(Dictionary<Actor>& actorTable, const Dictionary<Movie>& movieTable);
+void displayKnownActors(Graph& graph, Dictionary<Actor>& actorTable);
 
 template <typename T>
 int generateUniqueID(const Dictionary<T>& dictionary);
@@ -65,6 +66,8 @@ int main()
     parseCast("data/cast.csv", actorTable, movieTable);
     parseActorRatings("data/actorRatings.csv", actorTable);
     parseMovieRatings("data/movieRatings.csv", movieTable);
+    Graph graph;
+    graph.buildGraph(actorTable);
 
     while (choice != 0) {
         cout << "--------------- MENU ---------------" << endl;
@@ -149,8 +152,8 @@ int main()
 		else if (choice == 10) {
             string actorName;
             cout << "----------- DISPLAY KNOWN ACTORS -----------" << endl;
-            displayKnownActors(actorTable, movieTable);
-		}
+            displayKnownActors(graph, actorTable);
+        }
         else if (choice == 11) {
             cout << "------ DISPLAY ACTOR RATINGS ------" << endl;
             displayActorRatings(actorTable);
@@ -751,18 +754,14 @@ void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Ac
 }
 
 // i) 
-void displayKnownActors(Dictionary<Actor>& actorTable, const Dictionary<Movie>& movieTable) {
+void displayKnownActors(Graph& graph, Dictionary<Actor>& actorTable) {
     string name;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Clear input buffer
 
     while (true) {
-        name = "-1";
-        cout << endl;
-        cout << "Select actor (Enter actor name, or 0 to exit): ";
+        cout << "\nSelect actor (Enter actor name, or 0 to exit): ";
         getline(cin, name);
         if (name == "0") return;
-
-        cout << endl;
 
         Actor* actor = findActorByName(actorTable, name);
 
@@ -771,93 +770,10 @@ void displayKnownActors(Dictionary<Actor>& actorTable, const Dictionary<Movie>& 
             continue;
         }
 
-        List<string> directCoActors;   // Stores direct co-actors
-        List<string> indirectCoActors; // Stores indirect co-actors
-        List<int> visitedMovies;       // Tracks visited movie IDs
-
-        // Helper function to check if a value exists in a List
-        auto contains = [](const auto& list, const auto& value) -> bool {
-            for (int i = 0; i < list.getLength(); i++) {
-                if (list.get(i) == value) return true;
-            }
-            return false;
-            };
-
-        // Process direct co-actors (Level 1)
-        const List<int>& movieIDs = actor->getMovies(); // Movies the actor starred in
-        for (int i = 0; i < movieIDs.getLength(); i++) {
-            int movieID = movieIDs.get(i);
-            if (!contains(visitedMovies, movieID)) {
-                visitedMovies.add(movieID);
-
-                Movie* movie = movieTable.get(movieID);
-                if (movie) {
-                    const List<int>& coActorIDs = movie->getActors();
-                    for (int j = 0; j < coActorIDs.getLength(); j++) {
-                        int coActorID = coActorIDs.get(j);
-                        if (coActorID != actor->getId()) { // Skip the selected actor
-                            Actor* coActor = actorTable.get(coActorID);
-                            if (coActor && !contains(directCoActors, coActor->getName())) {
-                                directCoActors.add(coActor->getName()); // Add direct co-actor
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Process indirect co-actors (Level 2)
-        for (int i = 0; i < directCoActors.getLength(); i++) {
-            string coActorName = directCoActors.get(i);
-            Actor* coActor = nullptr;
-
-            // Find the co-actor in the actor table
-            List<KeyValue<int, Actor>> allActors = actorTable.getAllItemsWithKeys();
-            for (int j = 0; j < allActors.getLength(); j++) {
-                if (allActors.get(j).value->getName() == coActorName) {
-                    coActor = allActors.get(j).value;
-                    break;
-                }
-            }
-
-            if (coActor) {
-                const List<int>& coActorMovies = coActor->getMovies();
-                for (int k = 0; k < coActorMovies.getLength(); k++) {
-                    int movieID = coActorMovies.get(k);
-                    if (!contains(visitedMovies, movieID)) {
-                        visitedMovies.add(movieID);
-
-                        Movie* movie = movieTable.get(movieID);
-                        if (movie) {
-                            const List<int>& indirectActorIDs = movie->getActors();
-                            for (int l = 0; l < indirectActorIDs.getLength(); l++) {
-                                int indirectActorID = indirectActorIDs.get(l);
-                                Actor* indirectActor = actorTable.get(indirectActorID);
-                                if (indirectActor && indirectActor->getName() != coActorName &&
-                                    !contains(directCoActors, indirectActor->getName()) &&
-                                    !contains(indirectCoActors, indirectActor->getName())) {
-                                    indirectCoActors.add(indirectActor->getName()); // Add indirect co-actor
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Display results
-        cout << "Actors known by \"" << actor->getName() << "\":" << endl;
-        cout << "Direct Co-Actors:" << endl;
-        for (int i = 0; i < directCoActors.getLength(); i++) {
-            cout << "- " << directCoActors.get(i) << endl;
-        }
-        cout << "Indirect Co-Actors:" << endl;
-        for (int i = 0; i < indirectCoActors.getLength(); i++) {
-            cout << "- " << indirectCoActors.get(i) << endl;
-        }
+        // Use the Graph class to find and display co-actors
+        graph.findCoActors(actor->getId(), actorTable);
     }
 }
-
 
 
 // ADVANCED
