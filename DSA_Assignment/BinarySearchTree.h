@@ -47,29 +47,47 @@ private:
     }
 
 public:
+    // Constructor
     BinarySearchTree(const std::function<bool(const T&, const T&)>& comp)
         : root(nullptr), size(0), compare(comp) {
     }
 
+    // Deconstructor
+    // Calls clear() to remove all nodes from tree and free memory
     ~BinarySearchTree() {
         clear(root);
     }
 
+    // Inserts an element into the binary search tree
+    // Parameter: const T& data - element to insert
+    // Pre : data should be of a type compatible with the comparison function
+    // Post: data is inserted into the tree in the correct position
     void insert(const T& data) {
         insert(root, data);
         size++;
     }
 
+    // Performs in-order traversal of the tree
+    // Parameter: const std::function<void(const T&)>& visit - function to apply to each node's data
+    // Pre : None
+    // Post: visit function is applied to each element in in-order sequence
     void inOrderTraversal(const std::function<void(const T&)>& visit) const {
         inOrderTraversal(root, visit);
     }
 
+    // Clears the binary search tree
+    // Pre : None
+    // Post: All nodes are removed from the tree, and memory is freed
     void clear() {
         clear(root);
         root = nullptr;
         size = 0;
     }
 
+    // Returns the number of elements in the binary search tree
+    // Pre : None
+    // Post: None
+    // Returns: int - number of elements in the tree
     int getSize() const {
         return size;
     }

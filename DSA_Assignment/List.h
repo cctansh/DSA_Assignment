@@ -24,23 +24,48 @@ public:
     // Destructor
     ~List();
 
-    // Add an item to the list
+    // Adds an item to the list
+    // Parameter: const T& item - item to add
+    // Pre : List size should be less than 17000
+    // Post: item is added to the list if size limit not reached
+    // Returns: bool - true if item added, false otherwise
     bool add(const T& item);
 
-    // Remove an item at a specific index
+    // Removes an item at a specific index
+    // Parameter: int index - index of item to remove
+    // Pre : index should be within bounds of the list
+    // Post: Item at specified index is removed
     void remove(int index);
 
-    // Get an item at a specific index
+    // Gets an item at a specific index
+    // Parameter: int index - index of item to retrieve
+    // Pre : index should be within bounds of the list
+    // Post: None
+    // Returns: const T& - item at the specified index
     const T& get(int index) const;
 
-    // Check if an item exists in the list
+    // Checks if an item exists in the list
+    // Parameter: const T& item - item to check
+    // Pre : None
+    // Post: None
+    // Returns: bool - true if item exists, false otherwise
     bool contains(const T& item) const;
 
-    // Print all items
+    // Prints all items in the list
+    // Pre : None
+    // Post: All items are printed to the console
     void print() const;
 
+    // Checks if the list is empty
+    // Pre : None
+    // Post: None
+    // Returns: bool - true if the list is empty, false otherwise
     bool isEmpty() const;
 
+    // Gets the number of items in the list
+    // Pre : None
+    // Post: None
+    // Returns: int - number of items in the list
     int getLength() const;
 };
 

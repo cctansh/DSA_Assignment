@@ -27,32 +27,61 @@ private:
 	int hash(const KeyType& key) const;
 
 public:
-	// Constructor
-	Dictionary();
+    // Constructor
+    Dictionary();
 
-	// Destructor
-	~Dictionary();
+    // Destructor
+    ~Dictionary();
 
-	// Add an item with a key
-	bool add(const KeyType& key, ValueType* newItem);
+    // Adds an item with a specified key to the dictionary
+    // Parameters: const KeyType& key - key for the item, ValueType* newItem - pointer to the new item
+    // Pre : key should be unique in the dictionary
+    // Post: Item is added to the dictionary if key is unique
+    // Returns: bool - true if item is added, false if key exists
+    bool add(const KeyType& key, ValueType* newItem);
 
-	// Remove an item by key
-	bool remove(const KeyType& key);
+    // Removes an item by key from the dictionary
+    // Parameter: const KeyType& key - key of the item to remove
+    // Pre : key should exist in the dictionary
+    // Post: Item is removed if key exists
+    // Returns: bool - true if item is removed, false otherwise
+    bool remove(const KeyType& key);
 
-	// Get an item by key
-	ValueType* get(const KeyType& key) const;
+    // Gets an item by key from the dictionary
+    // Parameter: KeyType& key - key of item to retrieve
+    // Pre : key should exist in the dictionary
+    // Post: None
+    // Returns: ValueType* - pointer to the item at the key
+    ValueType* get(const KeyType& key) const;
 
-	// Check if dictionary is empty
-	bool isEmpty() const;
+    // Checks if the dictionary is empty
+    // Pre : None
+    // Post: None
+    // Returns: bool - true if dictionary is empty, false otherwise
+    bool isEmpty() const;
 
-	// Get the number of items in the dictionary
-	int getLength() const;
+    // Gets the number of items in the dictionary
+    // Pre : None
+    // Post: None
+    // Returns: int - number of items in the dictionary
+    int getLength() const;
 
-	// Retrieve all key-value pairs in the dictionary
-	List<KeyValue<KeyType, ValueType>> getAllItemsWithKeys() const;
+    // Retrieve all key-value pairs in the dictionary
+    // Pre : Dictionary should not be empty
+    // Post: None
+    // Returns: List<KeyValue<KeyType, ValueType>> - List of KeyValue items
+    List<KeyValue<KeyType, ValueType>> getAllItemsWithKeys() const;
 
+    // Prints all items in the dictionary
+    // Pre : None
+    // Post: All items are printed to the console
     void print();
 
+    // Replaces an item at a given key with a new item
+    // Parameters: const KeyType& key - key of the item to replace, ValueType* newItem - pointer to the new item
+    // Pre : key should exist in the dictionary
+    // Post: Item at the specified key is replaced with newItem
+    // Returns: bool - true if item is replaced, false otherwise
     bool replace(const KeyType& key, ValueType* newItem);
 };
 
