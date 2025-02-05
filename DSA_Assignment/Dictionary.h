@@ -86,45 +86,50 @@ public:
 };
 
 // Constructor
+// Initializes the dictionary by setting all item pointers to nullptr and size to 0
 template <typename ValueType>
 Dictionary<ValueType>::Dictionary() {
     size = 0;
     for (int i = 0; i < MAX_SIZE; i++) {
-        items[i] = nullptr;
+        items[i] = nullptr;  // Initialize each bucket to nullptr
     }
 }
 
 // Destructor
+// Frees all allocated memory by deleting each node and its corresponding item
 template <typename ValueType>
 Dictionary<ValueType>::~Dictionary() {
     for (int i = 0; i < MAX_SIZE; i++) {
-        Node* current = items[i];
+        Node* current = items[i];  // Start at the first node in the bucket
         while (current) {
-            Node* toDelete = current;
-            current = current->next;
-            delete toDelete->item;
-            delete toDelete;
+            Node* toDelete = current;  // Store the current node to delete
+            current = current->next;  // Move to the next node
+            delete toDelete->item;    // Free memory of the item
+            delete toDelete;          // Free memory of the node
         }
     }
 }
 
 // Hash function
+// Computes the hash index based on the key
 template <typename ValueType>
 int Dictionary<ValueType>::hash(const KeyType& key) const {
-    return key % MAX_SIZE;
+    return key % MAX_SIZE;  // Simple modulus hash function
 }
 
 // Add an item with a key
+// Inserts a new key-item pair into the dictionary
+// Returns false if the key already exists
 template <typename ValueType>
 bool Dictionary<ValueType>::add(const KeyType& key, ValueType* newItem) {
-    int index = hash(key);
-    ValueType* allocatedItem = newItem ? newItem : new ValueType(*newItem);
+    int index = hash(key);  // Get the hash index for the key
+    ValueType* allocatedItem = newItem ? newItem : new ValueType(*newItem);  // Allocate item if needed
 
-    Node* newNode = new Node{ key, allocatedItem, nullptr };
+    Node* newNode = new Node{ key, allocatedItem, nullptr };  // Create new node
 
-    Node* current = items[index];
+    Node* current = items[index];  // Start at the bucket index
     if (!current) {
-        items[index] = newNode;
+        items[index] = newNode;  // Insert node if bucket is empty
     }
     else {
         while (current) {
@@ -132,113 +137,120 @@ bool Dictionary<ValueType>::add(const KeyType& key, ValueType* newItem) {
                 // Key already exists, clean up and return false
                 delete newNode->item;  // Free allocated item
                 delete newNode;        // Free allocated node
-                return false;
+                return false;  // Duplicate key found
             }
             if (!current->next) break;  // Stop at the last node
-            current = current->next;
+            current = current->next;  // Move to the next node
         }
-        current->next = newNode;
+        current->next = newNode;  // Add new node to the end of the list
     }
 
-    size++;
-    return true;
+    size++;  // Increment dictionary size
+    return true;  // Successfully added
 }
 
 // Remove an item by key
+// Deletes the key-item pair from the dictionary if found
 template <typename ValueType>
 bool Dictionary<ValueType>::remove(const KeyType& key) {
-    int index = hash(key);
-    Node* current = items[index];
-    Node* prev = nullptr;
+    int index = hash(key);  // Get the hash index for the key
+    Node* current = items[index];  // Start at the bucket index
+    Node* prev = nullptr;  // Keep track of the previous node
 
     while (current) {
         if (current->key == key) {
             if (prev) {
-                prev->next = current->next;
+                prev->next = current->next;  // Bypass current node
             }
             else {
-                items[index] = current->next;
+                items[index] = current->next;  // Update head if first node matches
             }
-            delete current->item;
-            delete current;
-            size--;
-            return true;
+            delete current->item;  // Free memory of the item
+            delete current;  // Free memory of the node
+            size--;  // Decrement dictionary size
+            return true;  // Successfully removed
         }
-        prev = current;
+        prev = current;  // Move to the next node
         current = current->next;
     }
-    return false;
+    return false;  // Key not found
 }
 
 // Get an item by key
+// Retrieves the item associated with the key if found
 template <typename ValueType>
 ValueType* Dictionary<ValueType>::get(const KeyType& key) const {
-    int index = hash(key);
-    Node* current = items[index];
+    int index = hash(key);  // Get the hash index for the key
+    Node* current = items[index];  // Start at the bucket index
     while (current) {
         if (current->key == key) {
-            return current->item;
+            return current->item;  // Return the item if key matches
         }
-        current = current->next;
+        current = current->next;  // Move to the next node
     }
-    return nullptr;
+    return nullptr;  // Key not found
 }
 
 // Check if dictionary is empty
+// Returns true if the dictionary contains no items
 template <typename ValueType>
 bool Dictionary<ValueType>::isEmpty() const {
-    return size == 0;
+    return size == 0;  // Check if size is zero
 }
 
 // Get the number of items in the dictionary
+// Returns the total number of items
 template <typename ValueType>
 int Dictionary<ValueType>::getLength() const {
-    return size;
+    return size;  // Return the current size
 }
 
 // Retrieve all key-value pairs in the dictionary
+// Returns a list of all key-value pairs
 template <typename ValueType>
 List<KeyValue<KeyType, ValueType>> Dictionary<ValueType>::getAllItemsWithKeys() const {
     List<KeyValue<KeyType, ValueType>> allItemsWithKeys;
     for (int i = 0; i < MAX_SIZE; ++i) {
-        Node* current = items[i];
+        Node* current = items[i];  // Start at the bucket index
         while (current) {
-            KeyValue<KeyType, ValueType> kv{ current->key, current->item };
-            allItemsWithKeys.add(kv);
-            current = current->next;
+            KeyValue<KeyType, ValueType> kv{ current->key, current->item };  // Create key-value pair
+            allItemsWithKeys.add(kv);  // Add to list
+            current = current->next;  // Move to the next node
         }
     }
-    return allItemsWithKeys;
+    return allItemsWithKeys;  // Return list of key-value pairs
 }
 
+// Print all items in the dictionary
+// Displays each key and its associated item
 template <typename ValueType>
 void Dictionary<ValueType>::print() {
     for (int i = 0; i < MAX_SIZE; ++i) {
-        Node* current = items[i];
+        Node* current = items[i];  // Start at the bucket index
         while (current) {
             if (current->item) {
-                cout << setw(6) << left << current->key << ". ";
-                current->item->print();
+                cout << setw(6) << left << current->key << ". ";  // Print key
+                current->item->print();  // Call the print function of the item
             }
-            
-            current = current->next;
+            current = current->next;  // Move to the next node
         }
     }
 }
 
 // Replace an item at a given key with a new item
+// Updates the item if the key exists
 template <typename ValueType>
 bool Dictionary<ValueType>::replace(const KeyType& key, ValueType* newItem) {
-    int index = hash(key);
-    Node* current = items[index];
+    int index = hash(key);  // Get the hash index for the key
+    Node* current = items[index];  // Start at the bucket index
 
     while (current) {
         if (current->key == key) {
-            delete current->item;       // Free the memory of the old item
-            current->item = newItem;    // Assign the new item
-            return true;
+            delete current->item;  // Free the memory of the old item
+            current->item = newItem;  // Assign the new item
+            return true;  // Successfully replaced
         }
-        current = current->next;
+        current = current->next;  // Move to the next node
     }
-    return false; // Key not found
+    return false;  // Key not found
 }
