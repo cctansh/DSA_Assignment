@@ -262,7 +262,7 @@ int main()
 		}
 
 		cout << endl;
-		if (choice == 0) {
+		if (choice == 0) { // Update all CSVs and exit program
 			updateMoviesCSV(movieTable);
 			updateActorsCSV(actorTable);
 			updateCastCSV(movieTable);
@@ -293,12 +293,10 @@ int main()
 		}
 		else if (choice == 6) {
 			cout << "----------- DISPLAY ACTOR IN AGE RANGE -----------" << endl;
-			// display actors by age range
 			displayActorsByAge(actorTable);
 		}
 		else if (choice == 7) {
 			cout << "----------- DISPLAY MOVIES MADE WITHIN PAST 3 YEARS -----------" << endl;
-			// display movies within the past 3 years
 			displayMoviesByYear(movieTable);
 		}
 		else if (choice == 8) {
@@ -386,13 +384,15 @@ void addActor(Dictionary<Actor>& actorTable) {
 		}
 	}
 
+	// Create actor
 	Actor* actor = new Actor(id, name, birthYear);
 
+	// Add actor to dictionary
 	bool success = actorTable.add(id, actor);
 
 	if (!success) {
-		cout << "Actor with this ID already exists." << endl;
-		delete actor;
+		cout << "Failed to add actor." << endl;
+		delete actor; // Free memory
 		return;
 	}
 
@@ -461,8 +461,9 @@ void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTabl
 
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
-	// Get movie
+	
 	while (true) {
+		// Get movie
 		cout << "\nEnter the title of the movie you want to add an actor to (or enter 0 to exit): ";
 		getline(cin, movieTitle);
 		if (movieTitle == "0") return;
@@ -471,7 +472,7 @@ void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTabl
 		movie = findMovieByTitle(movieTable, movieTitle);
 		if (movie == nullptr) {
 			cout << endl << "Movie not found. Please try again." << endl;
-			continue;
+			continue; // Loop to get movie
 		}
 
 		// Get actor
@@ -484,14 +485,16 @@ void addActorToMovie(Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTabl
 			actor = findActorByName(actorTable, actorName);
 			if (actor == nullptr) {
 				cout << endl << "Actor not found. Please try again." << endl << endl;
-				continue;
+				continue; // Loop to get actor
 			}
 			break;
 		}
+
 		// Add the actor to the movie and vice versa
 		actor->addMovie(movie->getId());
 		movie->addActor(actor->getId());
 
+		// Success message
 		cout << endl << "Actor " << actor->getName() << " has been added to the movie " << movie->getTitle() << "." << endl;
 		return;
 	}
@@ -506,6 +509,8 @@ void updateActor(Dictionary<Actor>& actorTable) {
 	while (true) {
 		name = "-1";
 		cout << endl;
+
+		// Get actor
 		cout << "Select actor to update (Enter actor name, or 0 to exit): ";
 		getline(cin, name);
 		if (name == "0") return;
@@ -516,7 +521,9 @@ void updateActor(Dictionary<Actor>& actorTable) {
 
 		if (actor != nullptr) {
 			choice = -1;
+
 			while (choice != 0) {
+				// Select actor attribute to edit
 				actor->print();
 				cout << "1. Name" << endl << "2. Birth Year" << endl << "0. Return to actor select" << endl << endl;
 				cout << "Select which to update: ";
@@ -532,6 +539,7 @@ void updateActor(Dictionary<Actor>& actorTable) {
 				}
 
 				if (choice == 1) {
+					// Edit name
 					string newName;
 					cout << endl << "Enter new name: ";
 					cin.ignore();
@@ -542,6 +550,7 @@ void updateActor(Dictionary<Actor>& actorTable) {
 					cout << endl;
 				}
 				else if (choice == 2) {
+					// Edit birth year
 					int newYear;
 					while (true) {
 						cout << endl << "Enter new birth year: ";
@@ -591,6 +600,8 @@ void updateMovie(Dictionary<Movie>& movieTable) {
 	while (true) {
 		name = "-1";
 		cout << endl;
+
+		// Get movie
 		cout << "Select movie to update (Enter movie title, or 0 to exit): ";
 		getline(cin, name);
 		if (name == "0") return;
@@ -601,7 +612,9 @@ void updateMovie(Dictionary<Movie>& movieTable) {
 
 		if (movie != nullptr) {
 			choice = -1;
+
 			while (choice != 0) {
+				// Select movie attribute to edit
 				movie->printFullDetails();
 				cout << "1. Title" << endl << "2. Plot" << endl << "3. Release Year" << endl << "0. Return to movie select" << endl << endl;
 				cout << "Select which to update: ";
@@ -617,6 +630,7 @@ void updateMovie(Dictionary<Movie>& movieTable) {
 				}
 
 				if (choice == 1) {
+					// Edit title
 					string newTitle;
 					cout << endl << "Enter new title: ";
 					cin.ignore();
@@ -627,6 +641,7 @@ void updateMovie(Dictionary<Movie>& movieTable) {
 					cout << endl;
 				}
 				else if (choice == 2) {
+					// Edit plot
 					string newPlot;
 					cout << endl << "Enter new plot: ";
 					cin.ignore();
@@ -637,6 +652,7 @@ void updateMovie(Dictionary<Movie>& movieTable) {
 					cout << endl;
 				}
 				else if (choice == 3) {
+					// Edit release year
 					int newYear;
 					while (true) {
 						cout << endl << "Enter new release year: ";
