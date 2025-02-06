@@ -78,13 +78,13 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable);
 // Parameters: Dictionary<Actor>& actorTable - dictionary of actors, const Dictionary<Movie>& movieTable - dictionary of movies
 // Pre : actorTable and movieTable should contain relevant data
 // Post: Movies starred in by the actor are displayed alphabetically
-void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<Movie>& movieTable);
+void displayMoviesActorStarredIn(Dictionary<Actor>& actorTable, const Dictionary<Movie>& movieTable);
 
 // Displays all actors in a specific movie, sorted alphabetically
 // Parameters: Dictionary<Movie>& movieTable - dictionary of movies, const Dictionary<Actor>& actorTable - dictionary of actors
-// Pre : movieTable and actorTable should contain relevant data
+// Pre : movieTable and actorTable should crontain relevant data
 // Post: Actors in the specified movie are displayed alphabetically
-void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Actor>& actorTable);
+void displayActorsInMovie(Dictionary<Movie>& movieTable, const Dictionary<Actor>& actorTable);
 
 // Displays all actors that a specific actor knows based on movie collaborations
 // Parameters: Graph& graph - graph representing actor-movie relationships, Dictionary<Actor>& actorTable - dictionary of actors
@@ -238,13 +238,22 @@ int main()
 	while (true)
 	{
 		// Prompt for role
+		//string role;
+		//cout << "Log in as Admin or User (0 to exit): ";
+		//cin >> role;
+		//cout << endl;
+
+		//// Convert role to lowercase
+		//transform(role.begin(), role.end(), role.begin(), ::tolower);
+
 		string role;
 		cout << "Log in as Admin or User (0 to exit): ";
-		cin >> role;
+		cin >> ws;  // Eat up any leading whitespace
+		getline(cin, role);  // Read the entire line (in case user typed spaces)
 		cout << endl;
 
-		// Convert role to lowercase
-		transform(role.begin(), role.end(), role.begin(), ::tolower);
+		// Normalize the input (removes spaces and converts to lowercase)
+		role = normalizeString(role);
 
 		// If user types "exit", break out of the outer loop and end the program
 		if (role == "0")
@@ -384,12 +393,12 @@ int main()
 				else if (choice == 3)
 				{
 					cout << "----------- DISPLAY MOVIES BY ACTOR -----------" << endl;
-					displayMoviesForActorByID(actorTable, movieTable);
+					displayMoviesActorStarredIn(actorTable, movieTable);
 				}
 				else if (choice == 4)
 				{
 					cout << "----------- DISPLAY ACTORS IN A MOVIE -----------" << endl;
-					displayActorsInMovieByID(movieTable, actorTable);
+					displayActorsInMovie(movieTable, actorTable);
 				}
 				else if (choice == 5)
 				{
@@ -438,119 +447,6 @@ int main()
 			cout << "Invalid role entered. Please try again.\n\n";
 		}
 	}
-
-	//while (choice != 0) {
-	//	cout << "--------------- MENU ---------------" << endl;
-	//	cout << "1.  Add actor" << endl;
-	//	cout << "2.  Add movie" << endl;
-	//	cout << "3.  Add actor to movie" << endl;
-	//	cout << "4.  Update actor" << endl;
-	//	cout << "5.  Update movie" << endl;
-	//	cout << "6.  Display actors within a specified age range, sorted in ascending order by age" << endl;
-	//	cout << "7.  Display movies released within the past 3 years, sorted in ascending order by release year" << endl;
-	//	cout << "8.  Display all movies an actor has starred in, sorted in alphabetical order" << endl;
-	//	cout << "9.  Display all actors in a particular movie, sorted in alphabetical order" << endl;
-	//	cout << "10. Display a list of all actors that a particular actor knows" << endl;
-	//	cout << "11. Display all ratings for an actor" << endl;
-	//	cout << "12. Display all ratings for a movie" << endl;
-	//	cout << "13. Rate an actor" << endl;
-	//	cout << "14. Rate a movie" << endl;
-	//	cout << "15. Display Actors above a minimum rating" << endl;
-	//	cout << "16. Display Movies above a minimum rating" << endl;
-	//	cout << "0. Exit" << endl << endl;
-	//	cout << "Enter your choice: ";
-	//	cin >> choice;
-
-	//	// handle non ints
-	//	if (cin.fail()) {
-	//		// Handle invalid input
-	//		cin.clear();               // Clear error flag
-	//		cin.ignore(numeric_limits<streamsize>::max(), '\n');
-	//		cout << endl << "Invalid choice. Please try again." << endl << endl;
-	//		choice = -1;
-	//		continue;
-	//	}
-
-	//	cout << endl;
-	//	if (choice == 0) { // Update all CSVs and exit program
-	//		updateMoviesCSV(movieTable);
-	//		updateActorsCSV(actorTable);
-	//		updateCastCSV(movieTable);
-	//		updateMovieRatingsCSV(movieTable);
-	//		updateActorRatingsCSV(actorTable);
-	//		break;
-	//	}
-	//	else if (choice == 1) {
-	//		cout << "------------ ADD ACTOR ------------" << endl;
-	//		addActor(actorTable);
-	//	}
-	//	else if (choice == 2) {
-	//		cout << "------------ ADD MOVIE ------------" << endl;
-	//		addMovie(movieTable);
-	//	}
-	//	else if (choice == 3) {
-	//		cout << "------- ADD ACTOR TO MOVIE -------" << endl;
-	//		addActorToMovie(actorTable, movieTable);
-
-	//	}
-	//	else if (choice == 4) {
-	//		cout << "----------- UPDATE ACTOR -----------" << endl;
-	//		updateActor(actorTable);
-	//	}
-	//	else if (choice == 5) {
-	//		cout << "----------- UPDATE MOVIE -----------" << endl;
-	//		updateMovie(movieTable);
-	//	}
-	//	else if (choice == 6) {
-	//		cout << "----------- DISPLAY ACTOR IN AGE RANGE -----------" << endl;
-	//		displayActorsByAge(actorTable);
-	//	}
-	//	else if (choice == 7) {
-	//		cout << "----------- DISPLAY MOVIES MADE WITHIN PAST 3 YEARS -----------" << endl;
-	//		displayMoviesByYear(movieTable);
-	//	}
-	//	else if (choice == 8) {
-	//		cout << "----------- DISPLAY MOVIES BY ACTOR STARRED IN -----------" << endl;
-	//		displayMoviesForActorByID(actorTable, movieTable);
-	//	}
-	//	else if (choice == 9) {
-	//		cout << "----------- DISPLAY ACTORS IN A MOVIE -----------" << endl;
-	//		displayActorsInMovieByID(movieTable, actorTable);
-	//	}
-	//	else if (choice == 10) {
-	//		string actorName;
-	//		cout << "----------- DISPLAY KNOWN ACTORS -----------" << endl;
-	//		displayKnownActors(graph, actorTable);
-	//	}
-	//	else if (choice == 11) {
-	//		cout << "------ DISPLAY ACTOR RATINGS ------" << endl;
-	//		displayActorRatings(actorTable);
-	//	}
-	//	else if (choice == 12) {
-	//		cout << "------ DISPLAY MOVIE RATINGS ------" << endl;
-	//		displayMovieRatings(movieTable);
-	//	}
-	//	else if (choice == 13) {
-	//		cout << "----------- RATE ACTOR -----------" << endl;
-	//		rateActor(actorTable);
-	//	}
-	//	else if (choice == 14) {
-	//		cout << "----------- RATE MOVIE -----------" << endl;
-	//		rateMovie(movieTable);
-	//	}
-	//	else if (choice == 15) {
-	//		cout << "----------- DISPLAY ACTORS OF A MINIMUM RATING -----------" << endl;
-	//		displayActorsByMinimumRating(actorTable);
-	//	}
-	//	else if (choice == 16) {
-	//		cout << "----------- DISPLAY MOVIES OF A MINIMUM RATING -----------" << endl;
-	//		displayMoviesByMinimumRating(movieTable);
-	//	}
-	//	else {
-	//		cout << "Invalid choice. Please try again." << endl;
-	//	}
-	//	cout << endl;
-	//}
 
 	return 0;
 }
@@ -1053,13 +949,12 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
 }
 
 // g) insertion sort
-void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<Movie>& movieTable) {
+void displayMoviesActorStarredIn(Dictionary<Actor>& actorTable, const Dictionary<Movie>& movieTable) {
 	string name;
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 	while (true) {
 		name = "-1";
-		cout << endl;
 		
 		// Get actor
 		cout << "Select actor (Enter actor name, or 0 to exit): ";
@@ -1104,13 +999,12 @@ void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<M
 }
 
 // h) insertion sort
-void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Actor>& actorTable) {
+void displayActorsInMovie(Dictionary<Movie>& movieTable, const Dictionary<Actor>& actorTable) {
 	string name;
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 	while (true) {
 		name = "-1";
-		cout << endl;
 
 		// Get movie
 		cout << "Select movie (Enter movie title, or 0 to exit): ";
@@ -1161,7 +1055,7 @@ void displayKnownActors(Graph& graph, Dictionary<Actor>& actorTable) {
 
 	while (true) {
 		// Get actor
-		cout << "\nSelect actor (Enter actor name, or 0 to exit): ";
+		cout << "Select actor (Enter actor name, or 0 to exit): ";
 		getline(cin, name);
 		if (name == "0") return;
 
@@ -1187,7 +1081,6 @@ void displayActorRatings(Dictionary<Actor>& actorTable) {
 
 	while (true) {
 		name = "-1";
-		cout << endl;
 		cout << "Select actor (Enter actor name, or 0 to exit): ";
 
 		getline(cin, name); // Get actor name from user
@@ -1215,7 +1108,6 @@ void displayMovieRatings(Dictionary<Movie>& movieTable) {
 
 	while (true) {
 		name = "-1";
-		cout << endl;
 		cout << "Select movie (Enter movie title, or 0 to exit): ";
 		getline(cin, name); // Get movie title from user
 		if (name == "0") return; // Exit if user inputs 0
@@ -1242,7 +1134,6 @@ void rateActor(Dictionary<Actor>& actorTable) {
 
 	while (true) {
 		name = "-1";
-		cout << endl;
 		cout << "Select actor (Enter actor name, or 0 to exit): ";
 		getline(cin, name); // Get actor name from user
 		if (name == "0") return; // Exit if user inputs 0
@@ -1290,7 +1181,6 @@ void rateMovie(Dictionary<Movie>& movieTable) {
 
 	while (true) {
 		name = "-1";
-		cout << endl;
 		cout << "Select movie (Enter movie title, or 0 to exit): ";
 		getline(cin, name); // Get movie title from user
 		if (name == "0") return; // Exit if user inputs 0
