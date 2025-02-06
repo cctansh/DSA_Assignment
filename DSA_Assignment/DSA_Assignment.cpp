@@ -698,34 +698,37 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
 		int x, y;
 
 		while (true) {
+			// Get min age
 			cout << "Enter the minimum age (0 to exit): ";
 			cin >> x;
 
-			if (cin.fail()) {
+			if (cin.fail()) { // Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "Invalid input. Please enter a valid integer for minimum age." << endl;
-				continue;
+				continue; // Loop to prompt again
 			}
 
 			if (x == 0) {
 				return;
 			}
 
+			// Get max age
 			cout << "Enter the maximum age (0 to exit): ";
 			cin >> y;
 
-			if (cin.fail()) {
+			if (cin.fail()) { // Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "Invalid input. Please enter a valid integer for maximum age." << endl;
-				continue;
+				continue; // Loop to prompt again
 			}
 
 			if (y == 0) {
 				return;
 			}
 
+			// If max age less than min age
 			if (y <= x) {
 				cout << "Invalid age range. Maximum age must be greater than minimum age. Please try again." << endl;
 				continue;
@@ -733,17 +736,18 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
 
 			break;
 		}
-
-		List<KeyValue<int, Actor>> actors = actorTable.getAllItemsWithKeys();
-		int count = actors.getLength();
+		
+		List<KeyValue<int, Actor>> actors = actorTable.getAllItemsWithKeys(); // Get all actors
+		int count = actors.getLength(); // Number of actors
 
 		// Dynamically allocate the array
 		Actor** actorsArr = new Actor * [count];
 		int index = 0;
 
 		for (int i = 0; i < count; i++) {
-			Actor* actor = actors.get(i).value;
-			int age = getCurrentYear() - actor->getBirthYear();
+			Actor* actor = actors.get(i).value; // Retrieve actor
+			int age = getCurrentYear() - actor->getBirthYear(); // Find actor age
+			// If actor age is within the range, add actor to array
 			if (age >= x && age <= y) {
 				actorsArr[index++] = actor;
 			}
@@ -778,20 +782,22 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
 		int currentYear;
 
 		while (true) {
+			// Get user input year
 			cout << "Enter the current year (0 to exit): ";
 			cin >> currentYear;
 
-			if (cin.fail()) {
+			if (cin.fail()) { // Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "Invalid input. Please enter a valid year." << endl;
-				continue;
+				continue; // Loop to prompt again
 			}
 
 			if (currentYear == 0) {
 				return;
 			}
 
+			// If user input year is later than current year
 			if (currentYear > getCurrentYear()) {
 				cout << "Invalid year. The year cannot be in the future. Please try again." << endl;
 				continue;
@@ -800,15 +806,16 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
 			break;
 		}
 
-		List<KeyValue<int, Movie>> movies = movieTable.getAllItemsWithKeys();
-		int count = movies.getLength();
+		List<KeyValue<int, Movie>> movies = movieTable.getAllItemsWithKeys(); // Get all movies
+		int count = movies.getLength(); // Number of movies
 
 		// Dynamically allocate the array
 		Movie** moviesArr = new Movie * [count];
 		int index = 0;
 
 		for (int i = 0; i < count; i++) {
-			Movie* movie = movies.get(i).value;
+			Movie* movie = movies.get(i).value; // Retrieve movie
+			// If movie is released within 3 years before user input year, add to array
 			if (movie->getYear() >= (currentYear - 3) && movie->getYear() <= currentYear) {
 				moviesArr[index++] = movie;
 			}
@@ -843,6 +850,8 @@ void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<M
 	while (true) {
 		name = "-1";
 		cout << endl;
+		
+		// Get actor
 		cout << "Select actor (Enter actor name, or 0 to exit): ";
 		getline(cin, name);
 		if (name == "0") return;
@@ -856,14 +865,16 @@ void displayMoviesForActorByID(Dictionary<Actor>& actorTable, const Dictionary<M
 			continue;
 		}
 
-		const List<int>& movieIDs = actor->getMovies();
-		int movieCount = movieIDs.getLength();
+		// Get movies from actor
+		const List<int>& movieIDs = actor->getMovies(); // Retrieve all movie IDS
+		int movieCount = movieIDs.getLength(); // Number of movies
 		string* movieTitles = new string[movieCount]; // Dynamically allocate array
 		int index = 0;
 
 		// Collect movie titles
 		for (int i = 0; i < movieCount; i++) {
-			Movie* movie = movieTable.get(movieIDs.get(i));
+			Movie* movie = movieTable.get(movieIDs.get(i)); // Get movie from dictionary
+			// If movie exists, add title to array
 			if (movie) {
 				movieTitles[index++] = movie->getTitle();
 			}
@@ -890,6 +901,8 @@ void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Ac
 	while (true) {
 		name = "-1";
 		cout << endl;
+
+		// Get movie
 		cout << "Select movie (Enter movie title, or 0 to exit): ";
 		getline(cin, name);
 		if (name == "0") return;
@@ -903,14 +916,16 @@ void displayActorsInMovieByID(Dictionary<Movie>& movieTable, const Dictionary<Ac
 			continue;
 		}
 
-		const List<int>& actorIDs = movie->getActors();
-		int actorCount = actorIDs.getLength();
+		// Get actors from movie
+		const List<int>& actorIDs = movie->getActors(); // Retrieve all actor IDs
+		int actorCount = actorIDs.getLength(); // Number of actors
 		string* actorNames = new string[actorCount]; // Dynamically allocate array
 		int index = 0;
 
 		// Collect actor names
 		for (int i = 0; i < actorCount; i++) {
-			Actor* actor = actorTable.get(actorIDs.get(i));
+			Actor* actor = actorTable.get(actorIDs.get(i)); // Get actor from dictionary
+			// If actor exists, add name to array
 			if (actor) {
 				actorNames[index++] = actor->getName();
 			}
@@ -935,6 +950,7 @@ void displayKnownActors(Graph& graph, Dictionary<Actor>& actorTable) {
 	cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Clear input buffer
 
 	while (true) {
+		// Get actor
 		cout << "\nSelect actor (Enter actor name, or 0 to exit): ";
 		getline(cin, name);
 		if (name == "0") return;
@@ -954,80 +970,83 @@ void displayKnownActors(Graph& graph, Dictionary<Actor>& actorTable) {
 
 // ADVANCED
 
+// Display ratings for a selected actor
 void displayActorRatings(Dictionary<Actor>& actorTable) {
 	string name;
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear input buffer
 
 	while (true) {
 		name = "-1";
 		cout << endl;
 		cout << "Select actor (Enter actor name, or 0 to exit): ";
 
-		getline(cin, name);
-		if (name == "0") return;
+		getline(cin, name); // Get actor name from user
+		if (name == "0") return; // Exit if user inputs 0
 
 		cout << endl;
 
-		Actor* actor = findActorByName(actorTable, name);
+		Actor* actor = findActorByName(actorTable, name); // Find actor by name
 
 		if (actor != nullptr) {
-			cout << actor->getName() << endl;
-			actor->displayRatings();
+			cout << actor->getName() << endl; // Display actor's name
+			actor->displayRatings(); // Display actor's ratings
 			cout << endl;
 		}
 		else {
-			cout << "Actor not found. Please try again." << endl;
+			cout << "Actor not found. Please try again." << endl; // Handle actor not found
 		}
 	}
 }
 
+// Display ratings for a selected movie
 void displayMovieRatings(Dictionary<Movie>& movieTable) {
 	string name;
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear input buffer
 
 	while (true) {
 		name = "-1";
 		cout << endl;
 		cout << "Select movie (Enter movie title, or 0 to exit): ";
-		getline(cin, name);
-		if (name == "0") return;
+		getline(cin, name); // Get movie title from user
+		if (name == "0") return; // Exit if user inputs 0
 
 		cout << endl;
 
-		Movie* movie = findMovieByTitle(movieTable, name);
+		Movie* movie = findMovieByTitle(movieTable, name); // Find movie by title
 
 		if (movie != nullptr) {
-			cout << movie->getTitle() << endl;
-			movie->displayRatings();
+			cout << movie->getTitle() << endl; // Display movie's title
+			movie->displayRatings(); // Display movie's ratings
 			cout << endl;
 		}
 		else {
-			cout << "Movie not found. Please try again." << endl;
+			cout << "Movie not found. Please try again." << endl; // Handle movie not found
 		}
 	}
 }
 
+// Add a rating to a selected actor
 void rateActor(Dictionary<Actor>& actorTable) {
 	string name;
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear input buffer
 
 	while (true) {
 		name = "-1";
 		cout << endl;
 		cout << "Select actor (Enter actor name, or 0 to exit): ";
-		getline(cin, name);
-		if (name == "0") return;
+		getline(cin, name); // Get actor name from user
+		if (name == "0") return; // Exit if user inputs 0
 
 		cout << endl;
 
-		Actor* actor = findActorByName(actorTable, name);
+		Actor* actor = findActorByName(actorTable, name); // Find actor by name
 
 		if (actor != nullptr) {
 			float rating;
 			while (true) {
 				rating = -1;
 				cout << "Enter a rating between 1-5 (or 0 to return to actor select): ";
-				cin >> rating;
+				cin >> rating; // Get rating from user
 
 				if (cin.fail()) {
 					// Handle invalid input
@@ -1037,44 +1056,45 @@ void rateActor(Dictionary<Actor>& actorTable) {
 					continue;
 				}
 
-				if (rating == 0) break;
+				if (rating == 0) break; // Return to actor select if 0
 
 				if (rating < 1 || rating > 5) {
 					cout << endl << "Invalid rating. Please enter a number between 1-5." << endl << endl;
 					continue;
 				}
 
-				actor->addRating(rating);
+				actor->addRating(rating); // Add rating to actor
 				return;
 			}
 		}
 		else {
-			cout << "Actor not found. Please try again." << endl;
+			cout << "Actor not found. Please try again." << endl; // Handle actor not found
 		}
 	}
 }
 
+// Add a rating to a selected movie
 void rateMovie(Dictionary<Movie>& movieTable) {
 	string name;
-	cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear input buffer
 
 	while (true) {
 		name = "-1";
 		cout << endl;
 		cout << "Select movie (Enter movie title, or 0 to exit): ";
-		getline(cin, name);
-		if (name == "0") return;
+		getline(cin, name); // Get movie title from user
+		if (name == "0") return; // Exit if user inputs 0
 
 		cout << endl;
 
-		Movie* movie = findMovieByTitle(movieTable, name);
+		Movie* movie = findMovieByTitle(movieTable, name); // Find movie by title
 
 		if (movie != nullptr) {
 			float rating;
 			while (true) {
 				rating = -1;
 				cout << "Enter a rating between 1-5 (or 0 to return to movie select): ";
-				cin >> rating;
+				cin >> rating; // Get rating from user
 
 				if (cin.fail()) {
 					// Handle invalid input
@@ -1084,20 +1104,19 @@ void rateMovie(Dictionary<Movie>& movieTable) {
 					continue;
 				}
 
-				if (rating == 0) break;
+				if (rating == 0) break; // Return to movie select if 0
 
 				if (rating < 1 || rating > 5) {
 					cout << endl << "Invalid rating. Please enter a number between 1-5." << endl << endl;
 					continue;
 				}
 
-				movie->addRating(rating);
+				movie->addRating(rating); // Add rating to movie
 				return;
 			}
 		}
 		else {
-
-			cout << "Movie not found. Please try again." << endl;
+			cout << "Movie not found. Please try again." << endl; // Handle movie not found
 		}
 	}
 }
@@ -1112,11 +1131,11 @@ void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
 			cout << "Enter the minimum rating (1-5, or 0 to exit): ";
 			cin >> minRating;
 
-			if (cin.fail() || minRating < 0 || minRating > 5) {
+			if (cin.fail() || minRating < 0 || minRating > 5) { // Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "Invalid rating. Please enter a number between 1 and 5, or 0 to exit." << endl;
-				continue;
+				continue; // Loop to prompt again
 			}
 
 			if (minRating == 0) {
@@ -1136,6 +1155,7 @@ void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
 
 		for (int i = 0; i < count; i++) {
 			Movie* movie = movies.get(i).value;
+			// If movie rating is above min rating, add to array
 			if (movie->getAverageRating() >= minRating) {
 				movieArr[index++] = movie;
 			}
@@ -1173,11 +1193,11 @@ void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable) {
 			cout << "Enter the minimum rating (1-5, or 0 to exit): ";
 			cin >> minRating;
 
-			if (cin.fail() || minRating < 0 || minRating > 5) {
+			if (cin.fail() || minRating < 0 || minRating > 5) {// Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "Invalid rating. Please enter a number between 1 and 5, or 0 to exit." << endl;
-				continue;
+				continue; // Loop to prompt again
 			}
 
 			if (minRating == 0) {
@@ -1197,6 +1217,7 @@ void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable) {
 
 		for (int i = 0; i < count; i++) {
 			Actor* actor = actors.get(i).value;
+			// If actor rating above min rating, add to array
 			if (actor->getAverageRating() >= minRating) {
 				actorArr[index++] = actor;
 			}
@@ -1293,10 +1314,11 @@ Actor* findActorByName(const Dictionary<Actor>& actorTable, const string& name) 
 
 		int choice;
 		while (true) {
+			// Select actor from matches
 			cout << "Enter the number of the correct actor: ";
 			cin >> choice;
 
-			if (cin.fail() || choice < 1 || choice > matchCount) {
+			if (cin.fail() || choice < 1 || choice > matchCount) { // Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "Invalid choice. Please select a valid number.\n";
@@ -1343,10 +1365,11 @@ Movie* findMovieByTitle(const Dictionary<Movie>& movieTable, const string& title
 
 		int choice;
 		while (true) {
+			// Select move from matches
 			cout << "Enter the number of the correct movie: ";
 			cin >> choice;
 
-			if (cin.fail() || choice < 1 || choice > matchCount) {
+			if (cin.fail() || choice < 1 || choice > matchCount) { // Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				cout << "Invalid choice. Please select a valid number.\n";
@@ -1444,17 +1467,17 @@ void parseMovies(const string& filename, Dictionary<Movie>& movieTable) {
 
 // Parse cast and establish relationships
 void parseCast(const string& filename, Dictionary<Actor>& actorTable, Dictionary<Movie>& movieTable) {
-	ifstream file(filename);
+	ifstream file(filename); // Open the file
 	string line;
-	while (getline(file, line)) {
-		stringstream ss(line);
+	while (getline(file, line)) { // Read each line from the file
+		stringstream ss(line); // Use stringstream to parse the line
 		int actorID, movieID;
-		ss >> actorID;
-		ss.ignore();
-		ss >> movieID;
+		ss >> actorID; // Extract actor ID
+		ss.ignore(); // Ignore delimiter
+		ss >> movieID; // Extract movie ID
 
-		Actor* actor = actorTable.get(actorID);
-		Movie* movie = movieTable.get(movieID);
+		Actor* actor = actorTable.get(actorID); // Retrieve actor by ID
+		Movie* movie = movieTable.get(movieID); // Retrieve movie by ID
 
 		if (actor && movie) {
 			// Add movieID to the actor and actorID to the movie
@@ -1462,49 +1485,49 @@ void parseCast(const string& filename, Dictionary<Actor>& actorTable, Dictionary
 			movie->addActor(actorID);
 		}
 	}
-	file.close();
+	file.close(); // Close the file
 }
 
 // Parse actor ratings
 void parseActorRatings(const string& filename, Dictionary<Actor>& actorTable) {
-	ifstream file(filename);
+	ifstream file(filename); // Open the file
 	string line;
-	while (getline(file, line)) {
-		stringstream ss(line);
+	while (getline(file, line)) { // Read each line from the file
+		stringstream ss(line); // Use stringstream to parse the line
 		int actorID;
 		float rating;
-		ss >> actorID;
-		ss.ignore();
-		ss >> rating;
+		ss >> actorID; // Extract actor ID
+		ss.ignore(); // Ignore delimiter
+		ss >> rating; // Extract rating
 
-		Actor* actor = actorTable.get(actorID);
+		Actor* actor = actorTable.get(actorID); // Retrieve actor by ID
 
 		if (actor) {
-			actor->addRating(rating);
+			actor->addRating(rating); // Add rating to actor
 		}
 	}
-	file.close();
+	file.close(); // Close the file
 }
 
 // Parse movie ratings
 void parseMovieRatings(const string& filename, Dictionary<Movie>& movieTable) {
-	ifstream file(filename);
+	ifstream file(filename); // Open the file
 	string line;
-	while (getline(file, line)) {
-		stringstream ss(line);
+	while (getline(file, line)) { // Read each line from the file
+		stringstream ss(line); // Use stringstream to parse the line
 		int movieID;
 		float rating;
-		ss >> movieID;
-		ss.ignore();
-		ss >> rating;
+		ss >> movieID; // Extract movie ID
+		ss.ignore(); // Ignore delimiter
+		ss >> rating; // Extract rating
 
-		Movie* movie = movieTable.get(movieID);
+		Movie* movie = movieTable.get(movieID); // Retrieve movie by ID
 
 		if (movie) {
-			movie->addRating(rating);
+			movie->addRating(rating); // Add rating to movie
 		}
 	}
-	file.close();
+	file.close(); // Close the file
 }
 
 void updateActorsCSV(const Dictionary<Actor>& actorTable) {
