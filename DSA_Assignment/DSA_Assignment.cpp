@@ -11,7 +11,6 @@ Ng Joe Yi S10262850
 #include "Actor.h"
 #include "Movie.h"
 #include "KeyValue.h"
-#include "BinarySearchTree.h"
 #include "Graph.h"
 #include <memory>
 #include <fstream>
@@ -236,118 +235,322 @@ int main()
 	Graph graph;
 	graph.buildGraph(actorTable);
 
-	while (choice != 0) {
-		cout << "--------------- MENU ---------------" << endl;
-		cout << "1.  Add actor" << endl;
-		cout << "2.  Add movie" << endl;
-		cout << "3.  Add actor to movie" << endl;
-		cout << "4.  Update actor" << endl;
-		cout << "5.  Update movie" << endl;
-		cout << "6.  Display actors within a specified age range, sorted in ascending order by age" << endl;
-		cout << "7.  Display movies released within the past 3 years, sorted in ascending order by release year" << endl;
-		cout << "8.  Display all movies an actor has starred in, sorted in alphabetical order" << endl;
-		cout << "9.  Display all actors in a particular movie, sorted in alphabetical order" << endl;
-		cout << "10. Display a list of all actors that a particular actor knows" << endl;
-		cout << "11. Display all ratings for an actor" << endl;
-		cout << "12. Display all ratings for a movie" << endl;
-		cout << "13. Rate an actor" << endl;
-		cout << "14. Rate a movie" << endl;
-		cout << "15. Display Actors above a minimum rating" << endl;
-		cout << "16. Display Movies above a minimum rating" << endl;
-		cout << "0. Exit" << endl << endl;
-		cout << "Enter your choice: ";
-		cin >> choice;
-
-		// handle non ints
-		if (cin.fail()) {
-			// Handle invalid input
-			cin.clear();               // Clear error flag
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
-			cout << endl << "Invalid choice. Please try again." << endl << endl;
-			choice = -1;
-			continue;
-		}
-
+	while (true)
+	{
+		// Prompt for role
+		string role;
+		cout << "Log in as Admin or User (0 to exit): ";
+		cin >> role;
 		cout << endl;
-		if (choice == 0) { // Update all CSVs and exit program
-			updateMoviesCSV(movieTable);
-			updateActorsCSV(actorTable);
-			updateCastCSV(movieTable);
-			updateMovieRatingsCSV(movieTable);
-			updateActorRatingsCSV(actorTable);
+
+		// Convert role to lowercase
+		transform(role.begin(), role.end(), role.begin(), ::tolower);
+
+		// If user types "exit", break out of the outer loop and end the program
+		if (role == "0")
+		{
+			cout << "Exiting the program...\n";
 			break;
 		}
-		else if (choice == 1) {
-			cout << "------------ ADD ACTOR ------------" << endl;
-			addActor(actorTable);
-		}
-		else if (choice == 2) {
-			cout << "------------ ADD MOVIE ------------" << endl;
-			addMovie(movieTable);
-		}
-		else if (choice == 3) {
-			cout << "------- ADD ACTOR TO MOVIE -------" << endl;
-			addActorToMovie(actorTable, movieTable);
 
+		// --------------------- ADMIN SECTION ---------------------
+		if (role == "admin")
+		{
+			while (true)
+			{
+				int choice = -1;
+				// Display admin menu
+				cout << "--------------- ADMIN MENU ---------------" << endl;
+				cout << "1.  Add actor" << endl;
+				cout << "2.  Add movie" << endl;
+				cout << "3.  Add actor to movie" << endl;
+				cout << "4.  Update actor" << endl;
+				cout << "5.  Update movie" << endl;
+				cout << "0.  Log out" << endl;
+				cout << "Enter your choice: ";
+				cin >> choice;
+
+				// Handle invalid input
+				if (cin.fail())
+				{
+					cin.clear();
+					cin.ignore(numeric_limits<streamsize>::max(), '\n');
+					cout << "\nInvalid choice. Please try again.\n\n";
+					continue;
+				}
+
+				cout << endl;
+
+				if (choice == 0)  // Log out
+				{
+					cout << "Logging out...\n\n";
+					// Update CSVs if you want the changes to persist on logout
+					updateMoviesCSV(movieTable);
+					updateActorsCSV(actorTable);
+					updateCastCSV(movieTable);
+					updateMovieRatingsCSV(movieTable);
+					updateActorRatingsCSV(actorTable);
+
+					break; // Breaks out of admin loop => back to login prompt
+				}
+				else if (choice == 1)
+				{
+					cout << "------------ ADD ACTOR ------------" << endl;
+					addActor(actorTable);
+				}
+				else if (choice == 2)
+				{
+					cout << "------------ ADD MOVIE ------------" << endl;
+					addMovie(movieTable);
+				}
+				else if (choice == 3)
+				{
+					cout << "------- ADD ACTOR TO MOVIE -------" << endl;
+					addActorToMovie(actorTable, movieTable);
+				}
+				else if (choice == 4)
+				{
+					cout << "----------- UPDATE ACTOR -----------" << endl;
+					updateActor(actorTable);
+				}
+				else if (choice == 5)
+				{
+					cout << "----------- UPDATE MOVIE -----------" << endl;
+					updateMovie(movieTable);
+				}
+				else
+				{
+					cout << "Invalid choice. Please try again." << endl;
+				}
+				cout << endl;
+			}
 		}
-		else if (choice == 4) {
-			cout << "----------- UPDATE ACTOR -----------" << endl;
-			updateActor(actorTable);
+		// --------------------- USER SECTION ---------------------
+		else if (role == "user")
+		{
+			while (true)
+			{
+				int choice = -1;
+				// Display user menu
+				cout << "--------------- USER MENU ---------------" << endl;
+				cout << "1.  Display actors within a specified age range" << endl;
+				cout << "2.  Display movies released within the past 3 years" << endl;
+				cout << "3.  Display all movies an actor has starred in" << endl;
+				cout << "4.  Display all actors in a particular movie" << endl;
+				cout << "5.  Display a list of all actors that a particular actor knows" << endl;
+				cout << "6.  Display all ratings for an actor" << endl;
+				cout << "7.  Display all ratings for a movie" << endl;
+				cout << "8.  Rate an actor" << endl;
+				cout << "9.  Rate a movie" << endl;
+				cout << "10. Display actors above a minimum rating" << endl;
+				cout << "11. Display movies above a minimum rating" << endl;
+				cout << "0.  Log out" << endl;
+				cout << "Enter your choice: ";
+				cin >> choice;
+
+				// Handle invalid input
+				if (cin.fail())
+				{
+					cin.clear();
+					cin.ignore(numeric_limits<streamsize>::max(), '\n');
+					cout << "\nInvalid choice. Please try again.\n\n";
+					continue;
+				}
+
+				cout << endl;
+
+				if (choice == 0) // Log out
+				{
+					cout << "Logging out...\n\n";
+					// Update CSVs on logout if desired
+					updateMoviesCSV(movieTable);
+					updateActorsCSV(actorTable);
+					updateCastCSV(movieTable);
+					updateMovieRatingsCSV(movieTable);
+					updateActorRatingsCSV(actorTable);
+
+					break; // Breaks out of user loop => back to login prompt
+				}
+				else if (choice == 1)
+				{
+					cout << "----------- DISPLAY ACTOR IN AGE RANGE -----------" << endl;
+					displayActorsByAge(actorTable);
+				}
+				else if (choice == 2)
+				{
+					cout << "----------- DISPLAY MOVIES MADE WITHIN PAST 3 YEARS -----------" << endl;
+					displayMoviesByYear(movieTable);
+				}
+				else if (choice == 3)
+				{
+					cout << "----------- DISPLAY MOVIES BY ACTOR -----------" << endl;
+					displayMoviesForActorByID(actorTable, movieTable);
+				}
+				else if (choice == 4)
+				{
+					cout << "----------- DISPLAY ACTORS IN A MOVIE -----------" << endl;
+					displayActorsInMovieByID(movieTable, actorTable);
+				}
+				else if (choice == 5)
+				{
+					cout << "----------- DISPLAY KNOWN ACTORS -----------" << endl;
+					displayKnownActors(graph, actorTable);
+				}
+				else if (choice == 6)
+				{
+					cout << "------ DISPLAY ACTOR RATINGS ------" << endl;
+					displayActorRatings(actorTable);
+				}
+				else if (choice == 7)
+				{
+					cout << "------ DISPLAY MOVIE RATINGS ------" << endl;
+					displayMovieRatings(movieTable);
+				}
+				else if (choice == 8)
+				{
+					cout << "----------- RATE ACTOR -----------" << endl;
+					rateActor(actorTable);
+				}
+				else if (choice == 9)
+				{
+					cout << "----------- RATE MOVIE -----------" << endl;
+					rateMovie(movieTable);
+				}
+				else if (choice == 10)
+				{
+					cout << "----------- DISPLAY ACTORS OF A MINIMUM RATING -----------" << endl;
+					displayActorsByMinimumRating(actorTable);
+				}
+				else if (choice == 11)
+				{
+					cout << "----------- DISPLAY MOVIES OF A MINIMUM RATING -----------" << endl;
+					displayMoviesByMinimumRating(movieTable);
+				}
+				else
+				{
+					cout << "Invalid choice. Please try again." << endl;
+				}
+				cout << endl;
+			}
 		}
-		else if (choice == 5) {
-			cout << "----------- UPDATE MOVIE -----------" << endl;
-			updateMovie(movieTable);
+		else
+		{
+			cout << "Invalid role entered. Please try again.\n\n";
 		}
-		else if (choice == 6) {
-			cout << "----------- DISPLAY ACTOR IN AGE RANGE -----------" << endl;
-			displayActorsByAge(actorTable);
-		}
-		else if (choice == 7) {
-			cout << "----------- DISPLAY MOVIES MADE WITHIN PAST 3 YEARS -----------" << endl;
-			displayMoviesByYear(movieTable);
-		}
-		else if (choice == 8) {
-			cout << "----------- DISPLAY MOVIES BY ACTOR STARRED IN -----------" << endl;
-			displayMoviesForActorByID(actorTable, movieTable);
-		}
-		else if (choice == 9) {
-			cout << "----------- DISPLAY ACTORS IN A MOVIE -----------" << endl;
-			displayActorsInMovieByID(movieTable, actorTable);
-		}
-		else if (choice == 10) {
-			string actorName;
-			cout << "----------- DISPLAY KNOWN ACTORS -----------" << endl;
-			displayKnownActors(graph, actorTable);
-		}
-		else if (choice == 11) {
-			cout << "------ DISPLAY ACTOR RATINGS ------" << endl;
-			displayActorRatings(actorTable);
-		}
-		else if (choice == 12) {
-			cout << "------ DISPLAY MOVIE RATINGS ------" << endl;
-			displayMovieRatings(movieTable);
-		}
-		else if (choice == 13) {
-			cout << "----------- RATE ACTOR -----------" << endl;
-			rateActor(actorTable);
-		}
-		else if (choice == 14) {
-			cout << "----------- RATE MOVIE -----------" << endl;
-			rateMovie(movieTable);
-		}
-		else if (choice == 15) {
-			cout << "----------- DISPLAY ACTORS OF A MINIMUM RATING -----------" << endl;
-			displayActorsByMinimumRating(actorTable);
-		}
-		else if (choice == 16) {
-			cout << "----------- DISPLAY MOVIES OF A MINIMUM RATING -----------" << endl;
-			displayMoviesByMinimumRating(movieTable);
-		}
-		else {
-			cout << "Invalid choice. Please try again." << endl;
-		}
-		cout << endl;
 	}
+
+	//while (choice != 0) {
+	//	cout << "--------------- MENU ---------------" << endl;
+	//	cout << "1.  Add actor" << endl;
+	//	cout << "2.  Add movie" << endl;
+	//	cout << "3.  Add actor to movie" << endl;
+	//	cout << "4.  Update actor" << endl;
+	//	cout << "5.  Update movie" << endl;
+	//	cout << "6.  Display actors within a specified age range, sorted in ascending order by age" << endl;
+	//	cout << "7.  Display movies released within the past 3 years, sorted in ascending order by release year" << endl;
+	//	cout << "8.  Display all movies an actor has starred in, sorted in alphabetical order" << endl;
+	//	cout << "9.  Display all actors in a particular movie, sorted in alphabetical order" << endl;
+	//	cout << "10. Display a list of all actors that a particular actor knows" << endl;
+	//	cout << "11. Display all ratings for an actor" << endl;
+	//	cout << "12. Display all ratings for a movie" << endl;
+	//	cout << "13. Rate an actor" << endl;
+	//	cout << "14. Rate a movie" << endl;
+	//	cout << "15. Display Actors above a minimum rating" << endl;
+	//	cout << "16. Display Movies above a minimum rating" << endl;
+	//	cout << "0. Exit" << endl << endl;
+	//	cout << "Enter your choice: ";
+	//	cin >> choice;
+
+	//	// handle non ints
+	//	if (cin.fail()) {
+	//		// Handle invalid input
+	//		cin.clear();               // Clear error flag
+	//		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	//		cout << endl << "Invalid choice. Please try again." << endl << endl;
+	//		choice = -1;
+	//		continue;
+	//	}
+
+	//	cout << endl;
+	//	if (choice == 0) { // Update all CSVs and exit program
+	//		updateMoviesCSV(movieTable);
+	//		updateActorsCSV(actorTable);
+	//		updateCastCSV(movieTable);
+	//		updateMovieRatingsCSV(movieTable);
+	//		updateActorRatingsCSV(actorTable);
+	//		break;
+	//	}
+	//	else if (choice == 1) {
+	//		cout << "------------ ADD ACTOR ------------" << endl;
+	//		addActor(actorTable);
+	//	}
+	//	else if (choice == 2) {
+	//		cout << "------------ ADD MOVIE ------------" << endl;
+	//		addMovie(movieTable);
+	//	}
+	//	else if (choice == 3) {
+	//		cout << "------- ADD ACTOR TO MOVIE -------" << endl;
+	//		addActorToMovie(actorTable, movieTable);
+
+	//	}
+	//	else if (choice == 4) {
+	//		cout << "----------- UPDATE ACTOR -----------" << endl;
+	//		updateActor(actorTable);
+	//	}
+	//	else if (choice == 5) {
+	//		cout << "----------- UPDATE MOVIE -----------" << endl;
+	//		updateMovie(movieTable);
+	//	}
+	//	else if (choice == 6) {
+	//		cout << "----------- DISPLAY ACTOR IN AGE RANGE -----------" << endl;
+	//		displayActorsByAge(actorTable);
+	//	}
+	//	else if (choice == 7) {
+	//		cout << "----------- DISPLAY MOVIES MADE WITHIN PAST 3 YEARS -----------" << endl;
+	//		displayMoviesByYear(movieTable);
+	//	}
+	//	else if (choice == 8) {
+	//		cout << "----------- DISPLAY MOVIES BY ACTOR STARRED IN -----------" << endl;
+	//		displayMoviesForActorByID(actorTable, movieTable);
+	//	}
+	//	else if (choice == 9) {
+	//		cout << "----------- DISPLAY ACTORS IN A MOVIE -----------" << endl;
+	//		displayActorsInMovieByID(movieTable, actorTable);
+	//	}
+	//	else if (choice == 10) {
+	//		string actorName;
+	//		cout << "----------- DISPLAY KNOWN ACTORS -----------" << endl;
+	//		displayKnownActors(graph, actorTable);
+	//	}
+	//	else if (choice == 11) {
+	//		cout << "------ DISPLAY ACTOR RATINGS ------" << endl;
+	//		displayActorRatings(actorTable);
+	//	}
+	//	else if (choice == 12) {
+	//		cout << "------ DISPLAY MOVIE RATINGS ------" << endl;
+	//		displayMovieRatings(movieTable);
+	//	}
+	//	else if (choice == 13) {
+	//		cout << "----------- RATE ACTOR -----------" << endl;
+	//		rateActor(actorTable);
+	//	}
+	//	else if (choice == 14) {
+	//		cout << "----------- RATE MOVIE -----------" << endl;
+	//		rateMovie(movieTable);
+	//	}
+	//	else if (choice == 15) {
+	//		cout << "----------- DISPLAY ACTORS OF A MINIMUM RATING -----------" << endl;
+	//		displayActorsByMinimumRating(actorTable);
+	//	}
+	//	else if (choice == 16) {
+	//		cout << "----------- DISPLAY MOVIES OF A MINIMUM RATING -----------" << endl;
+	//		displayMoviesByMinimumRating(movieTable);
+	//	}
+	//	else {
+	//		cout << "Invalid choice. Please try again." << endl;
+	//	}
+	//	cout << endl;
+	//}
 
 	return 0;
 }
