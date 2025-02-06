@@ -107,9 +107,8 @@ bool List<T>::add(const T& item) {
         firstNode = newNode;  // If the list is empty, set the first node
     }
     else {
-        Node* temp = firstNode;
-        while (temp->next) temp = temp->next;  // Traverse to the end of the list
-        temp->next = newNode;  // Append the new node at the end
+        newNode->next = firstNode;  // Point the new node's `next` to the current `firstNode`
+        firstNode = newNode;  // Update `firstNode` to be the new node
     }
 
     size++;  // Increment the size of the list
