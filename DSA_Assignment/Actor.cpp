@@ -1,3 +1,9 @@
+/*
+DSA T02
+Group 7
+Tan Si Huei Chloe S10260078
+Ng Joe Yi S10262850
+*/
 #include "Actor.h"
 
 // Constructor to initialize actor with id, name, and birth year

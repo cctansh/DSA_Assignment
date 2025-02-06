@@ -1,3 +1,9 @@
+/*
+DSA T02
+Group 7
+Tan Si Huei Chloe S10260078
+Ng Joe Yi S10262850
+*/
 #include "Graph.h"
 #include <iostream>
 using namespace std;
