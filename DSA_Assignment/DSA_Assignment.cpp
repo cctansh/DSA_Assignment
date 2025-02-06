@@ -344,8 +344,8 @@ int main()
 				cout << "--------------- USER MENU ---------------" << endl;
 				cout << "1.  Display actors within a specified age range" << endl;
 				cout << "2.  Display movies released within the past 3 years" << endl;
-				cout << "3.  Display all movies an actor has starred in" << endl;
-				cout << "4.  Display all actors in a particular movie" << endl;
+				cout << "3.  Display movies an actor has starred in" << endl;
+				cout << "4.  Display actors in a particular movie" << endl;
 				cout << "5.  Display a list of all actors that a particular actor knows" << endl;
 				cout << "6.  Display all ratings for an actor" << endl;
 				cout << "7.  Display all ratings for a movie" << endl;
