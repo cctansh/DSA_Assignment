@@ -1395,13 +1395,16 @@ string normalizeString(const string& str) {
 Actor* findActorByName(const Dictionary<Actor>& actorTable, const string& name) {
 	List<KeyValue<int, Actor>> actors = actorTable.getAllItemsWithKeys();
 
+	// Normalize the search name
+	string normalizedSearchName = normalizeString(name);
+
 	// Allocate dynamic array for matching actors
 	Actor** matchingActors = new Actor * [actors.getLength()];
 	int matchCount = 0;
 
 	// Collect all matching actors
 	for (int i = 0; i < actors.getLength(); ++i) {
-		if (actors.get(i).value->getName() == name) {
+		if (normalizeString(actors.get(i).value->getName()) == normalizedSearchName) {
 			matchingActors[matchCount++] = actors.get(i).value;
 		}
 	}
@@ -1446,13 +1449,16 @@ Actor* findActorByName(const Dictionary<Actor>& actorTable, const string& name) 
 Movie* findMovieByTitle(const Dictionary<Movie>& movieTable, const string& title) {
 	List<KeyValue<int, Movie>> movies = movieTable.getAllItemsWithKeys();
 
+	// Normalize the search title
+	string normalizedSearchTitle = normalizeString(title);
+
 	// Allocate dynamic array for matching movies
 	Movie** matchingMovies = new Movie * [movies.getLength()];
 	int matchCount = 0;
 
 	// Collect all matching movies
 	for (int i = 0; i < movies.getLength(); ++i) {
-		if (movies.get(i).value->getTitle() == title) {
+		if (normalizeString(movies.get(i).value->getTitle()) == normalizedSearchTitle) {
 			matchingMovies[matchCount++] = movies.get(i).value;
 		}
 	}
@@ -1476,7 +1482,7 @@ Movie* findMovieByTitle(const Dictionary<Movie>& movieTable, const string& title
 
 		int choice;
 		while (true) {
-			// Select move from matches
+			// Select movie from matches
 			cout << "Enter the number of the correct movie: ";
 			cin >> choice;
 
