@@ -842,7 +842,7 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
 
 			break;
 		}
-		
+
 		List<KeyValue<int, Actor>> actors = actorTable.getAllItemsWithKeys(); // Get all actors
 		int count = actors.getLength(); // Number of actors
 
@@ -889,7 +889,7 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
 
 		while (true) {
 			// Get user input year
-			cout << "Enter the current year (0 to exit): ";
+			cout << "Enter year (0 to exit): ";
 			cin >> currentYear;
 
 			if (cin.fail()) { // Invalid input
@@ -932,15 +932,16 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
 			Movie::mergeSortByYear(moviesArr, 0, index - 1);
 
 			// Display sorted movies
-			cout << left << setw(35) << "Movie Title" << setw(10) << "Year" << endl;
-			cout << string(45, '-') << endl; // Line separator
+			cout << endl;
+			cout << left << setw(100) << "Movie Title" << setw(10) << "Year" << endl;
+			cout << string(110, '-') << endl; // Adjusted line separator length
 			for (int i = 0; i < index; i++) {
-				cout << left << setw(35) << moviesArr[i]->getTitle()
-					<< right << setw(4) << moviesArr[i]->getYear() << endl;
+				cout << left << setw(100) << moviesArr[i]->getTitle()
+					<< setw(10) << moviesArr[i]->getYear() << endl;
 			}
 		}
 		else {
-			cout << "No movies found within the past 3 years." << endl;
+			cout << endl << "No movies found within the past 3 years." << endl;
 		}
 
 		delete[] moviesArr; // Free dynamically allocated memory
@@ -966,13 +967,17 @@ void displayMoviesActorStarredIn(Dictionary<Actor>& actorTable, const Dictionary
 		Actor* actor = findActorByName(actorTable, name);
 
 		if (!actor) {
-			cout << "Actor not found!" << endl;
+			cout << "Actor not found." << endl << endl;
 			continue;
 		}
 
 		// Get movies from actor
 		const List<int>& movieIDs = actor->getMovies(); // Retrieve all movie IDS
 		int movieCount = movieIDs.getLength(); // Number of movies
+		if (movieCount == 0) {
+			cout << "No movies found for \"" << actor->getName() << "\"." << endl << endl;
+			continue;
+		}
 		string* movieTitles = new string[movieCount]; // Dynamically allocate array
 		int index = 0;
 
@@ -993,6 +998,7 @@ void displayMoviesActorStarredIn(Dictionary<Actor>& actorTable, const Dictionary
 		for (int i = 0; i < index; i++) {
 			cout << "- " << movieTitles[i] << endl;
 		}
+		cout << endl;
 
 		delete[] movieTitles; // Free dynamically allocated memory
 	}
@@ -1016,13 +1022,17 @@ void displayActorsInMovie(Dictionary<Movie>& movieTable, const Dictionary<Actor>
 		Movie* movie = findMovieByTitle(movieTable, name);
 
 		if (!movie) {
-			cout << "Movie not found!" << endl;
+			cout << "Movie not found." << endl << endl;
 			continue;
 		}
 
 		// Get actors from movie
 		const List<int>& actorIDs = movie->getActors(); // Retrieve all actor IDs
 		int actorCount = actorIDs.getLength(); // Number of actors
+		if (actorCount == 0) {
+			cout << "No actors found in the movie \"" << movie->getTitle() << "\"." << endl << endl;
+			continue;
+		}
 		string* actorNames = new string[actorCount]; // Dynamically allocate array
 		int index = 0;
 
@@ -1043,7 +1053,7 @@ void displayActorsInMovie(Dictionary<Movie>& movieTable, const Dictionary<Actor>
 		for (int i = 0; i < index; i++) {
 			cout << "- " << actorNames[i] << endl;
 		}
-
+		cout << endl;
 		delete[] actorNames; // Free dynamically allocated memory
 	}
 }
@@ -1058,11 +1068,12 @@ void displayKnownActors(Graph& graph, Dictionary<Actor>& actorTable) {
 		cout << "Select actor (Enter actor name, or 0 to exit): ";
 		getline(cin, name);
 		if (name == "0") return;
+		cout << endl;
 
 		Actor* actor = findActorByName(actorTable, name);
 
 		if (!actor) {
-			cout << "Actor not found. Please try again." << endl;
+			cout << "Actor not found." << endl << endl ;
 			continue;
 		}
 
@@ -1096,7 +1107,7 @@ void displayActorRatings(Dictionary<Actor>& actorTable) {
 			cout << endl;
 		}
 		else {
-			cout << "Actor not found. Please try again." << endl; // Handle actor not found
+			cout << "Actor not found. Please try again." << endl << endl; // Handle actor not found
 		}
 	}
 }
@@ -1119,10 +1130,10 @@ void displayMovieRatings(Dictionary<Movie>& movieTable) {
 		if (movie != nullptr) {
 			cout << movie->getTitle() << endl; // Display movie's title
 			movie->displayRatings(); // Display movie's ratings
-			cout << endl;
+			cout << endl << endl;
 		}
 		else {
-			cout << "Movie not found. Please try again." << endl; // Handle movie not found
+			cout << "Movie not found. Please try again." << endl << endl; // Handle movie not found
 		}
 	}
 }
@@ -1169,7 +1180,7 @@ void rateActor(Dictionary<Actor>& actorTable) {
 			}
 		}
 		else {
-			cout << "Actor not found. Please try again." << endl; // Handle actor not found
+			cout << "Actor not found. Please try again." << endl << endl ; // Handle actor not found
 		}
 	}
 }
@@ -1216,7 +1227,7 @@ void rateMovie(Dictionary<Movie>& movieTable) {
 			}
 		}
 		else {
-			cout << "Movie not found. Please try again." << endl; // Handle movie not found
+			cout << "Movie not found. Please try again." << endl << endl; // Handle movie not found
 		}
 	}
 }
@@ -1234,7 +1245,7 @@ void displayMoviesByMinimumRating(const Dictionary<Movie>& movieTable) {
 			if (cin.fail() || minRating < 0 || minRating > 5) { // Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
-				cout << "Invalid rating. Please enter a number between 1 and 5, or 0 to exit." << endl;
+				cout << endl << "Invalid rating. Please enter a number between 1 and 5, or 0 to exit." << endl << endl;
 				continue; // Loop to prompt again
 			}
 
@@ -1296,7 +1307,7 @@ void displayActorsByMinimumRating(const Dictionary<Actor>& actorTable) {
 			if (cin.fail() || minRating < 0 || minRating > 5) {// Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
-				cout << "Invalid rating. Please enter a number between 1 and 5, or 0 to exit." << endl;
+				cout << endl << "Invalid rating. Please enter a number between 1 and 5, or 0 to exit." << endl << endl;
 				continue; // Loop to prompt again
 			}
 

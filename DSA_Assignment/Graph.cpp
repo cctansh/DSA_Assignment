@@ -125,25 +125,27 @@ void Graph::findCoActors(int actorID, Dictionary<Actor>& actorTable) {
     delete[] levelQueue;
 
     // Display Results
-    cout << "\nActors known by \"" << startActor->getName() << "\":" << endl;
+    cout << "Actors known by \"" << startActor->getName() << "\":" << endl;
 
-    cout << "Direct Co-Actors:" << endl;
+    cout << endl;
     if (directCoActors.isEmpty()) {
         cout << "No direct co-actors found." << endl;
     }
     else {
+        cout << "Direct Co-Actors:" << endl;
         for (int i = 0; i < directCoActors.getLength(); i++) {
             cout << "- " << directCoActors.get(i) << endl;  // Display direct co-actors
         }
     }
 
-    cout << "Indirect Co-Actors:" << endl;
     if (indirectCoActors.isEmpty()) {
-        cout << "No indirect co-actors found." << endl;
+        cout << "No indirect co-actors found." << endl << endl;
     }
     else {
+        cout << "Indirect Co-Actors:" << endl;
         for (int i = 0; i < indirectCoActors.getLength(); i++) {
             cout << "- " << indirectCoActors.get(i) << endl;  // Display indirect co-actors
         }
+        cout << endl;
     }
 }
