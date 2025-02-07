@@ -259,6 +259,13 @@ int main()
 		if (role == "0")
 		{
 			cout << "Exiting the program...\n";
+
+			// Update CSVs on logout
+			updateMoviesCSV(movieTable);
+			updateActorsCSV(actorTable);
+			updateCastCSV(movieTable);
+			updateMovieRatingsCSV(movieTable);
+			updateActorRatingsCSV(actorTable);
 			break;
 		}
 
@@ -293,12 +300,6 @@ int main()
 				if (choice == 0)  // Log out
 				{
 					cout << "Logging out...\n\n";
-					// Update CSVs if you want the changes to persist on logout
-					updateMoviesCSV(movieTable);
-					updateActorsCSV(actorTable);
-					updateCastCSV(movieTable);
-					updateMovieRatingsCSV(movieTable);
-					updateActorRatingsCSV(actorTable);
 
 					break; // Breaks out of admin loop => back to login prompt
 				}
@@ -371,12 +372,6 @@ int main()
 				if (choice == 0) // Log out
 				{
 					cout << "Logging out...\n\n";
-					// Update CSVs on logout if desired
-					updateMoviesCSV(movieTable);
-					updateActorsCSV(actorTable);
-					updateCastCSV(movieTable);
-					updateMovieRatingsCSV(movieTable);
-					updateActorRatingsCSV(actorTable);
 
 					break; // Breaks out of user loop => back to login prompt
 				}
