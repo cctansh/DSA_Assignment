@@ -5,6 +5,7 @@ Tan Si Huei Chloe S10260078
 Ng Joe Yi S10262850
 */
 #include "Actor.h"
+#include <algorithm>
 
 // Constructor to initialize actor with id, name, and birth year
 Actor::Actor(int id, const string& name, int birthYear) : id(id), name(name), birthYear(birthYear) {}
@@ -89,8 +90,8 @@ void Actor::displayRatings() {
 // Prints the actor's name, birth year, and average rating
 void Actor::print() {
     cout << setw(20) << left << name << " | "  // Align name to the left
-        << setw(4) << birthYear << " | "      // Display birth year
-        << setw(4) << fixed << setprecision(1) << getAverageRating() << "/5"  // Display average rating
+        << setw(4) << "Birth Year: " << birthYear << " | "      // Display birth year
+        << setw(4) << "Rating: " << fixed << setprecision(1) << getAverageRating() << "/5"  // Display average rating
         << endl;
 }
 
@@ -98,13 +99,25 @@ void Actor::print() {
 void Actor::insertionSortNames(string arr[], int n) {
     for (int i = 1; i < n; i++) {
         string key = arr[i];
+        string keyLower = key;
+        transform(keyLower.begin(), keyLower.end(), keyLower.begin(), ::tolower); // Convert once
+
         int j = i - 1;
 
-        while (j >= 0 && arr[j] > key) {
-            arr[j + 1] = arr[j];  // Shift larger elements to the right
-            j--;
+        // Store lowercase versions of elements for efficient comparison
+        while (j >= 0) {
+            string currentLower = arr[j];
+            transform(currentLower.begin(), currentLower.end(), currentLower.begin(), ::tolower);
+
+            if (currentLower > keyLower) {
+                arr[j + 1] = arr[j];  // Shift larger elements right
+                j--;
+            }
+            else {
+                break;
+            }
         }
-        arr[j + 1] = key;  // Insert key at the correct position
+        arr[j + 1] = key;  // Insert key in correct position
     }
 }
 

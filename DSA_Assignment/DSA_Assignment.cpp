@@ -233,7 +233,6 @@ int main()
 	parseActorRatings("data/actorRatings.csv", actorTable);
 	parseMovieRatings("data/movieRatings.csv", movieTable);
 	Graph graph;
-	graph.buildGraph(actorTable);
 
 	while (true)
 	{
@@ -245,7 +244,7 @@ int main()
 
 		//// Convert role to lowercase
 		//transform(role.begin(), role.end(), role.begin(), ::tolower);
-
+		graph.buildGraph(actorTable);
 		string role;
 		cout << "Log in as Admin or User (0 to exit): ";
 		cin >> ws;  // Eat up any leading whitespace
@@ -377,7 +376,7 @@ int main()
 				}
 				else if (choice == 1)
 				{
-					cout << "----------- DISPLAY ACTOR IN AGE RANGE -----------" << endl;
+					cout << "----------- DISPLAY ACTOR WITHIN AGE RANGE -----------" << endl;
 					displayActorsByAge(actorTable);
 				}
 				else if (choice == 2)
@@ -387,7 +386,7 @@ int main()
 				}
 				else if (choice == 3)
 				{
-					cout << "----------- DISPLAY MOVIES BY ACTOR -----------" << endl;
+					cout << "----------- DISPLAY MOVIES AN ACTOR HAS STARRED IN -----------" << endl;
 					displayMoviesActorStarredIn(actorTable, movieTable);
 				}
 				else if (choice == 4)
@@ -800,13 +799,13 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
 
 		while (true) {
 			// Get min age
-			cout << "Enter the minimum age (0 to exit): ";
+			cout << "Enter the minimum age (or 0 to exit): ";
 			cin >> x;
 
 			if (cin.fail()) { // Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
-				cout << "Invalid input. Please enter a valid integer for minimum age." << endl;
+				cout << endl << "Invalid input. Please enter a valid integer for minimum age." << endl << endl;
 				continue; // Loop to prompt again
 			}
 
@@ -815,13 +814,13 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
 			}
 
 			// Get max age
-			cout << "Enter the maximum age (0 to exit): ";
+			cout << "Enter the maximum age (or 0 to exit): ";
 			cin >> y;
 
 			if (cin.fail()) { // Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
-				cout << "Invalid input. Please enter a valid integer for maximum age." << endl;
+				cout << endl << "Invalid input. Please enter a valid integer for maximum age." << endl << endl ;
 				continue; // Loop to prompt again
 			}
 
@@ -829,11 +828,11 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
 				return;
 			}
 
-			// If max age less than min age
-			if (y <= x) {
-				cout << "Invalid age range. Maximum age must be greater than minimum age. Please try again." << endl;
-				continue;
-			}
+			//// If max age less than min age
+			//if (y <= x) {
+			//	cout << endl << "Invalid age range. Maximum age must be greater than minimum age. Please try again." << endl << endl;
+			//	continue;
+			//}
 
 			break;
 		}
@@ -855,15 +854,28 @@ void displayActorsByAge(const Dictionary<Actor>& actorTable) {
 		}
 
 		if (index == 0) {
-			cout << endl << "No actors found within the age range of " << x << " to " << y << "." << endl;
+			if (x == y) {
+				cout << endl << "No actors found with the age of " << x << "." << endl;
+			}
+			else {
+				cout << endl << "No actors found within the age range of " << x << " to " << y << "." << endl;
+			}
 		}
 		else {
 			// Sort actors by age using the Actor class's static method
 			Actor::mergeSortByAge(actorsArr, 0, index - 1, getCurrentYear());
 
 			// Display sorted actors
-			cout << endl << left << setw(35) << "Actor Name"
-				<< setw(15) << ("Age (" + to_string(x) + " - " + to_string(y) + ")") << endl;
+			cout << endl << left << setw(35) << "Actor Name";
+
+			// Adjust spacing so "Age (22)" aligns with "Age (20 - 21)"
+			if (x == y) {
+				cout << setw(2) << "" << "Age (" + to_string(x) + ")" << endl;  // Manually shift it right
+			}
+			else {
+				cout << setw(15) << ("Age (" + to_string(x) + " - " + to_string(y) + ")") << endl;
+			}
+
 			cout << string(50, '-') << endl; // Adds a separator line
 			for (int i = 0; i < index; i++) {
 				cout << left << setw(35) << actorsArr[i]->getName()
@@ -884,13 +896,13 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
 
 		while (true) {
 			// Get user input year
-			cout << "Enter year (0 to exit): ";
+			cout << "Enter year (or 0 to exit): ";
 			cin >> currentYear;
 
 			if (cin.fail()) { // Invalid input
 				cin.clear();
 				cin.ignore(numeric_limits<streamsize>::max(), '\n');
-				cout << "Invalid input. Please enter a valid year." << endl;
+				cout << endl << "Invalid input. Please enter a valid year." << endl << endl;
 				continue; // Loop to prompt again
 			}
 
@@ -899,8 +911,8 @@ void displayMoviesByYear(const Dictionary<Movie>& movieTable) {
 			}
 
 			// If user input year is later than current year
-			if (currentYear > getCurrentYear()) {
-				cout << "Invalid year. The year cannot be in the future. Please try again." << endl;
+			if (currentYear < 1800 || currentYear > getCurrentYear()) {
+				cout << endl << "Please enter a release year between 1800 and " << getCurrentYear() << "." << endl << endl;
 				continue;
 			}
 
@@ -1420,6 +1432,7 @@ Actor* findActorByName(const Dictionary<Actor>& actorTable, const string& name) 
 			cout << i + 1 << ". ";
 			matchingActors[i]->print();
 		}
+		cout << endl;
 
 		int choice;
 		while (true) {
@@ -1433,6 +1446,8 @@ Actor* findActorByName(const Dictionary<Actor>& actorTable, const string& name) 
 				cout << "Invalid choice. Please select a valid number.\n";
 				continue;
 			}
+
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');  // FIX: Clear newline after valid input
 
 			Actor* selectedActor = matchingActors[choice - 1];
 			delete[] matchingActors;  // Clean up memory after selection
@@ -1487,6 +1502,8 @@ Movie* findMovieByTitle(const Dictionary<Movie>& movieTable, const string& title
 				cout << "Invalid choice. Please select a valid number.\n";
 				continue;
 			}
+
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');  // FIX: Clear newline after valid input
 
 			Movie* selectedMovie = matchingMovies[choice - 1];
 			delete[] matchingMovies;  // Clean up memory after selection

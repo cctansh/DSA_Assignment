@@ -5,6 +5,7 @@ Tan Si Huei Chloe S10260078
 Ng Joe Yi S10262850
 */
 #include "Movie.h"
+#include <algorithm>
 
 // Constructor to initialize movie with id, title, plot, and release year
 Movie::Movie(int id, const string& title, const string& plot, int year)
@@ -100,8 +101,8 @@ void Movie::displayRatings() {
 // Prints the movie's title, release year, and average rating
 void Movie::print() {
     cout << setw(20) << left << title << " | "  // Align title to the left
-        << setw(4) << year << " | "            // Display release year
-        << setw(4) << fixed << setprecision(1) << getAverageRating() << "/5"
+        << setw(4) << "Plot: " << year << " | "            // Display release year
+        << setw(4) << "Rating: " << fixed << setprecision(1) << getAverageRating() << "/5"
         << endl;
 }
 
@@ -119,13 +120,25 @@ void Movie::printFullDetails() {
 void Movie::insertionSortTitles(string arr[], int n) {
     for (int i = 1; i < n; i++) {
         string key = arr[i];
+        string keyLower = key;
+        transform(keyLower.begin(), keyLower.end(), keyLower.begin(), ::tolower); // Convert once
+
         int j = i - 1;
 
-        while (j >= 0 && arr[j] > key) {
-            arr[j + 1] = arr[j];  // Shift larger titles to the right
-            j--;
+        // Precompute lowercase comparisons for efficiency
+        while (j >= 0) {
+            string currentLower = arr[j];
+            transform(currentLower.begin(), currentLower.end(), currentLower.begin(), ::tolower);
+
+            if (currentLower > keyLower) {
+                arr[j + 1] = arr[j];  // Shift elements right
+                j--;
+            }
+            else {
+                break;
+            }
         }
-        arr[j + 1] = key;  // Insert key at the correct position
+        arr[j + 1] = key;  // Insert key at correct position
     }
 }
 
